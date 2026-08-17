@@ -1,247 +1,145 @@
 # CubeMegaMod
-This is a large mod for CubeWorld steam version. It adds underwater exploration, combat modifications,
-lore improvements, gold usages and more.
 
-**If anyone is in need for help with creating their own mods or a collaboration, don't hesitate to contact me. I am always glad to help and work with you. My discord is: Nichiren#3660.**
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20x64-blue.svg)](https://microsoft.com)
+[![Language](https://img.shields.io/badge/Language-C%2B%2B17-00599C.svg)](https://isocpp.org)
+[![Build System](https://img.shields.io/badge/Build-CMake%20%7C%20Clang-green.svg)](https://cmake.org)
+[![Target](https://img.shields.io/badge/Target-Cube%20World%20Steam-ff69b4.svg)](https://store.steampowered.com/app/1128000/Cube_World/)
 
-I am not to be held responsible for any damage because of usage of this mod. Use this mod at your own risk.
+**CubeMegaMod** is an expansive, modular gameplay overhaul for the Steam release of **Cube World**. Built as a native x64 dynamic link library (`DLL`) leveraging the **Cube World SDK (CWSDK)**, it revitalizes exploration, combat fluidity, regional progression, and town economies while preserving seamless multiplayer compatibility.
 
-**Be safe and back up your save data when playing with mods**
+> [!IMPORTANT]
+> **Backup your save data before playing with mods!**
+> Save files are stored in `%LOCALAPPDATA%\CubeWorld\Save\` or `<CubeWorldFolder>\Save\`.
 
-## Features
-Features of this mod include sea exploration, lore interactions and combat improvements. This mods also allowins the user to select which parts of the mod they want to have enabled while playing the game. These preferences will be saved and taken next time you start up the game.
+---
 
-**NOTE THAT EVERY SEPERATE FEATURE CAN BE DISABLED WITH THE CHAT**
+## 📑 Table of Contents
+- [✨ Key Features](#-key-features)
+- [📦 Quick Installation](#-quick-installation)
+- [🎮 In-Game Commands](#-in-game-commands)
+- [🏛️ Architecture & Modularity](#-architecture--modularity)
+- [📚 Documentation Index](#-documentation-index)
+- [🛠️ Building from Source](#-building-from-source)
+- [🤝 Contributing](#-contributing)
+- [❤️ Credits & Acknowledgements](#-credits--acknowledgements)
 
-### Sea exploration [ID: 1]
-Going underwater will spawn random hostile fishes around you. Going underwater usually drains stamina.
-This is still the case, however now 10 gold is automatically used to gain the underwater breathing ability for 10 seconds.
-On top of that, underwater exploring is rewarded with random chests spawning every 60 seconds.
-The chest types are:
-- Wood chest [Chances to drop gold, 1 - 5 star gear and consumables (also including unavailable ones)]
-- Skull chest [Drops gold and one or two 4 - 8 star gear items]
-- Obsedian chest [Drops artifacts]
-- Bone chest [Drops pets (also including unavailable pets)]
+---
 
-Next to that, random bosses spawn while diving. These can get be really strong (500k hp for example),
-so only take them on when you are geared up with 5+ star gear.
+## ✨ Key Features
 
-### Lore interactions [ID: 2]
-Lore interactions are updated. Now, whenever you interaction with a lore object, you have a chance of finding an item.
-In the chat, a message will appear on how this item was found. The rates for finding items are the following:
-- Every (lore < 100) has a maximum of 50% (based on lore) chance to drop a 1 star gear.
-- Every (lore >= 100 && lore < 150) has a maximum of 50% (based on lore) chance to drop 2-3 star weapon.
-- Every (lore >= 150) has a maximum of 100% (based on lore) chance to drop an artifact.
+CubeMegaMod is split into **12 independently toggleable sub-modules**. Every feature can be enabled or disabled on the fly in-game via chat commands without restarting your client.
 
-### Combat improvements [ID: 3]
-New combat abilities added:
-- The 1 key converts your mana to stamina.
-- The 2 key restores you to full health at the cost of 50 combo.
+| ID | Feature Module | Summary | Documentation |
+| :---: | :--- | :--- | :---: |
+| **1** | **Sea Exploration** | Diving oxygen economy (10g / 10s), 4 underwater chest tiers (Wood, Skull, Obsidian, Bone), and deep-sea bosses. | [Read Docs](file:///d:/Projects/CubeMegaMod/docs/features/sea-exploration.md) |
+| **2** | **Lore Interactions** | Lore inspection rolls for progressive loot (1–3 star gear, rare artifacts) with rich atmospheric flavor text. | [Read Docs](file:///d:/Projects/CubeMegaMod/docs/features/lore-interaction.md) |
+| **3** | **Combat Updates** | Mana-to-Stamina conversion (Key 1), 50-combo Full Heal (Key 2), and WASD directional dashes (Double-Tap or Ctrl). | [Read Docs](file:///d:/Projects/CubeMegaMod/docs/features/combat-updates.md) |
+| **4** | **Creature Updates** | +50% all companion pet stats, 50% damage nerf to overtuned hostile boomerang & mage mobs, starter 40 Gold. | [Read Docs](file:///d:/Projects/CubeMegaMod/docs/features/creature-updates.md) |
+| **5** | **Shop Updates** | Gem Trader sells artifacts, potions, and spirit cubes; Item Vendor stocks traversal gear, void stones, and rotating daily spirit cubes. | [Read Docs](file:///d:/Projects/CubeMegaMod/docs/features/shop-updates.md) |
+| **6** | **World Generation** | Un-restricts starting spawn biomes and generates macro-islands with coherent biomes using Simplex Noise. | [Read Docs](file:///d:/Projects/CubeMegaMod/docs/features/world-generation.md) |
+| **7** | **Beginner Mode** | Smooths early-game difficulty by scaling down hostile creature stats during player levels 1–5. | [Read Docs](file:///d:/Projects/CubeMegaMod/docs/features/beginner-mode.md) |
+| **8** | **Region Lock Update** | Replaces abrupt border penalties with distance-based gear power decay ($-2$ stars/region for normal gear, $-1$ for `+` gear). | [Read Docs](file:///d:/Projects/CubeMegaMod/docs/features/region-lock-update.md) |
+| **9** | **Weapon Upgrades** | Revives alpha-style Smithy weapon adaptation: upgrade normal weapons to `+`, and `+` weapons to $+1$ star rarity. | [Read Docs](file:///d:/Projects/CubeMegaMod/docs/features/weapon-upgrades.md) |
+| **10** | **Quest System** | Procedural kill quests dropped by NPCs targeting 30+ mob types with automatic inventory tracking and payouts. | [Read Docs](file:///d:/Projects/CubeMegaMod/docs/features/quest-system.md) |
+| **11** | **Player Updates** | Introduces the **Monk** class (Chieftain & Sorcerer specs, custom spells, passive mana) and 7 new custom playable races. | [Read Docs](file:///d:/Projects/CubeMegaMod/docs/features/player-updates.md) |
+| **12** | **Stack Updates** | Quality of life binary patch increasing maximum inventory stack size to **100** for all items and materials. | [Read Docs](file:///d:/Projects/CubeMegaMod/docs/features/stack-updates.md) |
 
-If the doubletap functionality is active, the following abilities can be activated by double tapping the mentioned key.
-If it is disabled, it can be activated using leftControl + mentioned key.
-- The movement keys (WASD) can be pressed for movement abilities (WAD) and an attack ability (S). The costs of these abilities is currently 75 stamina.
+---
 
-### Creature updates [ID: 4]
-Stat updates to mobs and pets.
-- Buffed pet stats. (All pet stats increased with 50%)
-- Nerfing ranged mobs.
-	- Nerfing mobs equiped with boomerangs. (Damage halved.)
-	- Nerfing mage mobs. (Damage halved.)
-- Creating a new character makes you start with 40g for a bit smoother start.
+## 📦 Quick Installation
 
-### Shop Updates [ID: 5]
-- Gem trader shop:
-	- Sells a random artifact (1000g).
-	- Sells healing potions, to support non healing classes in desert and fireland regions (5g-20g).
-	- Has a chance of selling spirit cubes (25g).
-	- The old gems that were sold are removed.
-![https://imgur.com/a/ivHSOIM](https://i.imgur.com/FxqLoov.png "Gem trader shop")
-- Item vendor:
-	- Sells special movement items (75g)
-	- Sells a void stone (50g).
-	- Sells a random amount of spirit cubes, amount and type vary each day (25g).
-![https://imgur.com/a/x2FOGbV](https://i.imgur.com/XkZDkxd.png "Item vendor shop")
+1. Install the **[Cube World Mod Launcher](https://github.com/ChrisMiuchiz/Cube-World-Mod-Launcher/releases)** by extracting it to your Cube World directory.
+2. Download the latest `CubeMegaMod-vX.X.X.dll` from the [Releases page](https://github.com/Nichiren/CubeMegaMod/releases).
+3. Place `CubeMegaMod-vX.X.X.dll` into your `<CubeWorldFolder>/Mods/` directory.
+4. Launch the game via the Mod Launcher.
 
+For detailed step-by-step instructions and troubleshooting, see the [Installation Guide](file:///d:/Projects/CubeMegaMod/docs/guides/INSTALLATION.md).
 
-### World Generation Updates [ID: 6]
-- Starting region can now by any of the normal temperature regions, such as hills, oceans, mountains, woodlands e.t.c.
-- World now consists of bigger islands with similar biomes. The world should still be compatible with old save data, but please back it up to be sure no save data is lost.
-![https://imgur.com/a/vh4U86s](https://i.imgur.com/yjl5c8m.png "New world generation")
+---
 
-### Beginner Mode [ID: 7]
-- For the first 5 levels of the player, enemies are scaled down, to allow a more beginner friendly start of a new character.
-	- Scaling is <17%, 33%, 50%, 67%, 83%> for each increasing level respectively.
+## 🎮 In-Game Commands
 
-### Region Lock Updates [ID: 8]
-- Gear is tuned with local power of a region, so it is the strongest in that region and its power fades the further it gets from the region.
-	- For normal gear, every region away from the source region substracts 2 stars of weapon effectiveness.
-	- For + gear, every region away from the source region substracts 1 star of weapon effectiveness.
+Open the in-game chat (`Enter`) to run commands:
 
-### Weapon Upgrading [ID: 9]
-- Brings back the weapon adaption from the alpha in a new jacket. NPC's with the tag smithy appear in some towns at the smithy (where you melt iron).
-	- Upgrading a normal weapon will convert it into a + weapon.
-	- Upgrading a + weapon will convert it into a normal weapon with 1 star extra rarity.
-	- Upgrading a weapon destroys all attached spirit cubes!
-![https://imgur.com/a/cHnS1Ij](https://i.imgur.com/JahE2aD.png "Weapon adaption / upgrading")
+```text
+/mod <ID> <1/0>          - Enable (1) or Disable (0) a sub-module by its ID
+/enable doubletap        - Enable double-tapping WASD to perform combat dashes
+/disable doubletap       - Switch dash trigger to Left Control + WASD
+/class <class_id>        - Spawn an NPC with a specific class for testing
+/t <anim_id>             - Trigger a specific player animation state
+```
 
-### New Quests [ID: 10]
-- Adds new quest types that can be dropped when talking to NPC's.
-	- The current types of kill quests are:
-		- cow
-		- fly
-		- chicken
-		- sheep
-		- collie
-		- skull bull
-		- alpaca
-		- turtle
-		- terrier
-		- scottisch terrier
-		- pig
-		- bunny
-		- ogre
-		- rockling
-		- hornets
-		- crow
-		- bat
-		- plain runner
-		- snow runner
-		- desert runner
-		- radishling
-		- onionling
-		- desert onionling
-		- imp
-		- spitter
-		- mole
-		- biter
-		- horse
-		- bark beetle
-		- fire beetle
-		- snout beetle
-		- lemon beetle
-		- mana deer
-	- Quests of different rarities can drop, increasing the reward and amount of kills needed.
+For the complete command syntax and parameter details, see [Commands Reference](file:///d:/Projects/CubeMegaMod/docs/COMMANDS.md).
 
-### Player updates [ID: 11]
-- Monk class
-	- Gear wearable: all gear except weapons can be equipped, with the exception of the fists.
-	- Specialization 0: Chieftain
-		- Ultimate: Bulwark, 20s cooldown. Heals the player back to full.
-		- Shift: Fire trail. Consumes mana and leaves a trail of fire, dealing damage based on damage and combo.
-		- Passive: Mana gain.
-		- Middle mouse button: Weird movement dash ability I made myself.
-	- Specialization 1: Sorcerer
-		- Ultimate: Bulwark, 30s cooldown. Drops a healing puddle. Gains 20 combo.
-		- Shift: Lava puddle, gains 1 combo. Costs 10 mana.
-		- Passive: Mana gain.
-		- Middle mouse button: Poison puddle, gains 5 combo. Costs 50 stamina.
-- Added playable races
-	- Jester
-	- Spectrino
-	- Raccoon
-	- Vampire
-	- Skeleton Knight
-	- Archdruid
-	- Half-demon
+---
 
-### Stack updates mod [ID: 12]
-- Increased the stack size for every item to 100.
+## 🏛️ Architecture & Modularity
 
-### Spirit Cubes [ID: -]
-Spirit cubes are available again in the game. They can be bought from the weapon vendor for 25g each! Checkout the 
-Shop Updates [ID: 5] part of the mod. 
+CubeMegaMod is designed around a modular object-oriented architecture:
+- **`CubeMod` Base Class**: Common interface for sub-mods with lifecycle hooks (`OnGameTick`, `OnChat`, `OnChestInteraction`, `OnLoreIncrease`, `OnCreatureDeath`, etc.).
+- **Memory & Detour Engine**: Utilizes naked assembly stubs (`__attribute__((naked))`) and far jumps (`WriteFarJMP`) to hook game routines with minimal overhead.
+- **CWSDK Extension Layer**: High-level C++ wrappers for abilities, UI inputs (`DButton`), dynamic quests, and entity manipulation.
 
-## Installing
-Download the latest version from the releases. Put the `CubeMegaMod-v.x.x.x.dll` of one of the releases in your mod folder. For usage of the mod, checkout the attached readme.
-If you have any trouble installing the mod, check out this showcase video and guide: https://www.youtube.com/watch?v=8xM1lcF0FWo.
+For deep technical insights, see [Architecture & Design](file:///d:/Projects/CubeMegaMod/docs/ARCHITECTURE.md).
 
-## Usage
-For v.1.2.0+, the usage is the following:
+---
 
-### Commands
-- `/enable doubletap`: Enables movement ability triggering with doubletap.
-- `/disable doubletap`: Disables movement ability triggering with doubletap.
-- `/mod <ID> <0 - 1>`: Turns feature with ID on (1) or off (0).
-- *(No longer supported)*`/enable autogoldusage`: Enables automatic gold consumption during the diving event.
-- *(No longer supported)*`/disable autogoldusage`: Disables automatic gold consumption during the diving event.
+## 📚 Documentation Index
 
+All project documentation is organized under [`docs/`](file:///d:/Projects/CubeMegaMod/docs/):
 
-## Bugs
-Bugs known:
-- Interactable game elments not responding after playing for a long time.
-- Doors not opening with harp sometimes.
-- Game crashing sometimes when talking to NPC's.
+- **System Architecture**: [docs/ARCHITECTURE.md](file:///d:/Projects/CubeMegaMod/docs/ARCHITECTURE.md)
+- **Commands Reference**: [docs/COMMANDS.md](file:///d:/Projects/CubeMegaMod/docs/COMMANDS.md)
+- **Contributing Guidelines**: [docs/CONTRIBUTING.md](file:///d:/Projects/CubeMegaMod/docs/CONTRIBUTING.md)
+- **Guides**:
+  - [Player Installation Guide](file:///d:/Projects/CubeMegaMod/docs/guides/INSTALLATION.md)
+  - [Building from Source (VS2019 / Clang / CMake)](file:///d:/Projects/CubeMegaMod/docs/guides/BUILDING.md)
+  - [Creating a Sub-Mod Guide](file:///d:/Projects/CubeMegaMod/docs/guides/CREATING-A-MOD.md)
+- **Feature Documentation**:
+  - [Sea Exploration (ID: 1)](file:///d:/Projects/CubeMegaMod/docs/features/sea-exploration.md)
+  - [Lore Interactions (ID: 2)](file:///d:/Projects/CubeMegaMod/docs/features/lore-interaction.md)
+  - [Combat Updates (ID: 3)](file:///d:/Projects/CubeMegaMod/docs/features/combat-updates.md)
+  - [Creature Updates (ID: 4)](file:///d:/Projects/CubeMegaMod/docs/features/creature-updates.md)
+  - [Shop Updates (ID: 5)](file:///d:/Projects/CubeMegaMod/docs/features/shop-updates.md)
+  - [World Generation (ID: 6)](file:///d:/Projects/CubeMegaMod/docs/features/world-generation.md)
+  - [Beginner Mode (ID: 7)](file:///d:/Projects/CubeMegaMod/docs/features/beginner-mode.md)
+  - [Region Lock Update (ID: 8)](file:///d:/Projects/CubeMegaMod/docs/features/region-lock-update.md)
+  - [Weapon Upgrades (ID: 9)](file:///d:/Projects/CubeMegaMod/docs/features/weapon-upgrades.md)
+  - [Quest System (ID: 10)](file:///d:/Projects/CubeMegaMod/docs/features/quest-system.md)
+  - [Player Updates & Monk (ID: 11)](file:///d:/Projects/CubeMegaMod/docs/features/player-updates.md)
+  - [Stack Updates (ID: 12)](file:///d:/Projects/CubeMegaMod/docs/features/stack-updates.md)
 
-## Possible features
-This is a list of the possible features I am considering for this mod. Everything with a preceding *[possible]* is simply an idea that I might take a look into. Everything without the preceding possible is likely to be implemented at one point in this mod.
+---
 
-### 1. User mod selection.
-  - *[Possible]* Automatic updating from the github repo.
-### 2. Increased Supplier Gnome Usefullness.
-  - *[Possible]* Extra usages for gems, such as leveling up weapons.
-### 4. Creature updates.
-  - Nerfing poison DOT by mobs.
-### 5. Buff gold gained from gold bags. (They are useless right now)
-### 6. Inceasing item stack sizes.
-  - Gaining increased stack / 'pouch' sizes by buying them, gaining them with events or as an effect of certain artifacts.
-### 7. Combat updates (not all of them may be implemented)
-  - An ability that gives 1-2% of hp at the cost of the amount of hp recovered in coins. Is a hold ability to support non-healing classes.
-  - Mapping the movement abilities to better keys (currently left control)
-  - Spending 50% of your hp to gain a damage buff.
-  - Spending combo to gain movement speed.
-  - Spending combo to gain HP.
-  - Spending combo to gain a buff (firetrail)
-  - Passives, like poison resistance or smth. Can also be when reaching 100+ combo, you gain a firetrail buff.
-  - Converting mana to stamina / other way around.
-  - Converting HP to mana / stamina.
-  - Mapping the abilities to the appropriate keys (currently 1 - 9)
-  - Making combo abilities depend on weapon used
-### 8. Buffing climbing speed by think of 100%. (The jumping hack is faster than climbing)
-### 9. New classes.
-  - Creating a new necromancer class.
-  - Creating a flying vampire class.
-  - Creating a stance changer class.
-  - *[Possible]* Creating a woodland / druid class.
-### 10. Incorporate previous mods into the mod.
-  - Cubegression
-  - GuardianFix
-  - CubePatch
-  - CubeTravel
-### 11. Shop updates
-  - New crafting recipes for crafting higher tiered potions.
-### 12. Character creation updates
-  - Allowing more races like necromancer and spike creatures e.t.c.
-### 13. New Quest types:
-  - A delivery quest: Person X of type Z needs special materials from a neighbouring village.
-Talking another person of type Z gets you those materials. You need to bring them back and give them to the quest giver.
-  - A gathering quest: Person X requires Y materials of type Z.
-Delivering that gives a larger reward than the value of said materials.
-### 14. New items
-  - Item reskinning for unobtainable items.
-### 15. Model loader
-  - Model loader that loads in new cub files and distribute types.
-### 16. New buyable skins with gold.
-### 17. Unlocking new classes / skins with achievements.
-### 18. Holding artefacts / wearing them.
-### 19. Make portal stones spawn bosses on usage.
-### 20. Job system
-  - Farmer job: Farming crops, increasing levels, selling them on the market?
-  - Mining job: Having a mode where you can walk around with a pickaxe and destroy terrain. Destroying terrain levels up your mining skills giving you a higher chance of dropping resources.
-  - Woodcutter job: Cutting woods and stuff, selling wood.
-  - Merchant job: Becoming a merchant, selling stuff from town to town.
-  - Fishing job: Having a fishing pole and getting a chance of chatching a magikarp. Uhhh I mean fishes!
-  - Blacksmithing job: Crafting weapons gives you xp and you get better more famous idk whatever.
-  - Adventurer job: Just the normal stuff, killing and quests give you adventurer xp.
-### 21. Ultimate progression
-  - Combining megamod region lock updates with cubegression and betterprogression enemy scaling
-### 22. All artifact bug fixing
-  - Fixes all stats that artifacts are supposed to give
-### 23. Weapon deconstruction
-  - Allowing gear to be deconstructed into resources, like: wood, iron, gold, emerals and more based on their rarity, material and gear type.
-### 24. Mini map updates
-  - Mini map showing question marks for points of interest.
-  - Re-introducing a fog over the minimap
+## 🛠️ Building from Source
 
-## Final words
-Special thanks **Chris** for his work for the modding community. **TheBagel3(Youtube, Discord, Twitch)** is the one to build on for support, ideas and enthousiasm. He makes awesome videos about the mods, is a nice person and lots of love for him ❤️. Also thanks **Timothy(GrayShadoz - Youtube)**, **Raxiti(Reddit)**, **kuba.dlouhej(Discord)** for testing and giving feedback on the mod.
+```bash
+# Clone with submodules
+git clone --recurse-submodules https://github.com/Nichiren/CubeMegaMod.git
+cd CubeMegaMod
+
+# Open in Visual Studio 2019/2022 and build with x64-Clang-Release
+```
+
+Refer to the [Building Guide](file:///d:/Projects/CubeMegaMod/docs/guides/BUILDING.md) for full compilation steps.
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Check out our [Contributing Guidelines](file:///d:/Projects/CubeMegaMod/docs/CONTRIBUTING.md) before opening a pull request.
+
+---
+
+## ❤️ Credits & Acknowledgements
+
+- **ChrisMiuchiz**: For creating the **CWSDK** and **Cube World Mod Launcher**, which make modern Cube World modding possible.
+- **TheBagel3**: For invaluable support, testing, video showcases, and community enthusiasm.
+- **Timothy (GrayShadoz)**, **Raxiti**, **kuba.dlouhej**: For testing, reporting issues, and continuous feedback.
+- **Andoryuuta & matpow2**: For reverse engineering foundation and struct mappings.
+
+---
+
+## 📄 License
+This project is licensed under the [MIT License](file:///d:/Projects/CubeMegaMod/LICENSE).
