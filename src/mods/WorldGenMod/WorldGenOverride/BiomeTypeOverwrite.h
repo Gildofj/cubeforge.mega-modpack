@@ -6,31 +6,34 @@
 
 #include "../Noise/SimplexNoise.h"
 #include "cwsdk.h"
-#include <math.h> 
+#include <cmath>
+#include <algorithm>
 
-int DistanceSquared(IntVector2 p1, IntVector2 p2)
+inline int DistanceSquared(IntVector2 p1, IntVector2 p2)
 {
 	int dx = p1.x - p2.x;
 	int dy = p1.y - p2.y;
 	return dx * dx + dy * dy;
 }
 
-int GetBiomeType(int x, int y)
+inline int GetBiomeType(int x, int y)
 {
-	int dx = std::floor(x / 7.f);
-	int dy = std::floor(y / 7.f);
+	float dx = std::floor(x / 7.f);
+	float dy = std::floor(y / 7.f);
 
-	return std::round(SimplexNoise::noise(dx, dy) * 5.f);
+	float n = (SimplexNoise::noise(dx, dy) + 1.0f) * 0.5f; // [0.0, 1.0]
+	int biome = static_cast<int>(std::floor(n * 6.0f));
+	return std::clamp(biome, 0, 5);
 }
 
-int GetHeight(int x, int y)
+inline int GetHeight(int x, int y)
 {
-	const static float MULT = std::sqrt(3 * 3 + 3 * 3);
+	const float MULT = std::sqrt(3.f * 3.f + 3.f * 3.f);
 	int dx = std::abs((std::abs(x) % 7) - 3);
 	int dy = std::abs((std::abs(y) % 7) - 3);
-	double dist = std::sqrt(DistanceSquared(IntVector2(dx, dy), IntVector2(0, 0)));
-	double multiplier = (MULT - dist) / MULT;
-	double height = multiplier * (2.f + SimplexNoise::noise(x, y)) / 3.f;
+	float dist = static_cast<float>(std::sqrt(DistanceSquared(IntVector2(dx, dy), IntVector2(0, 0))));
+	float multiplier = (MULT - dist) / MULT;
+	float height = multiplier * (2.f + SimplexNoise::noise(static_cast<float>(x), static_cast<float>(y))) / 3.f;
 
 	if (height > 0.5f)
 	{
@@ -54,12 +57,15 @@ extern "C" int GetRegionType(int x, int y) {
 		{(int)Zone::RegionType::Deadlands, (int)Zone::RegionType::Darkwoods},
 	};
 
-	if (GetHeight(x, y) == 0)
+	int height = GetHeight(x, y);
+	if (height <= 0)
 	{
 		return (int)Zone::RegionType::Ocean;
 	}
 
-	return REGION_TYPES[GetBiomeType(x, y)][GetHeight(x, y) - 1];
+	int biomeIdx = std::clamp(GetBiomeType(x, y), 0, 5);
+	int heightIdx = std::clamp(height - 1, 0, 1);
+	return REGION_TYPES[biomeIdx][heightIdx];
 }
 
 __attribute__((naked)) void ASMUpdateGetBiomeType() {

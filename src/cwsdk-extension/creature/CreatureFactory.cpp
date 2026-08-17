@@ -28,7 +28,7 @@ void cube::CreatureFactory::PrintInvisIDs()
 __int64 cube::CreatureFactory::CheckAndUpdateID(__int64 id)
 {
 	cube::Game* game = cube::GetGame();
-	if (!game->host.running)
+	if (!game || !game->host.running || !game->world)
 	{
 		return id;
 	}
@@ -42,7 +42,7 @@ __int64 cube::CreatureFactory::CheckAndUpdateID(__int64 id)
 	{
 		for (auto creature : *list)
 		{
-			if (creature->id == id)
+			if (creature && creature->id == id)
 			{
 				AddInvisID(id);
 				__int64 newId = GenerateId();
@@ -54,7 +54,7 @@ __int64 cube::CreatureFactory::CheckAndUpdateID(__int64 id)
 		
 		for (auto creature : *local_list)
 		{
-			if (creature->id == id)
+			if (creature && creature->id == id)
 			{
 				creature->entity_data.HP = 0;
 			}
@@ -64,11 +64,13 @@ __int64 cube::CreatureFactory::CheckAndUpdateID(__int64 id)
 	return id;
 }
 
+#include <climits>
+
 __int64 cube::CreatureFactory::GenerateId()
 {
 	cube::Game* game = cube::GetGame();
 	auto list = &game->host.world.creatures;
-	__int64 min = LONG_LONG_MAX;
+	__int64 min = LLONG_MAX;
 	for (auto creature : *list)
 	{
 		long long id = creature->id;
@@ -356,7 +358,18 @@ std::vector<cube::Creature*> cube::CreatureFactory::SpawnFishes(int amount, long
 		return creatures;
 	}
 
-	cube::Creature* player = cube::GetGame()->GetPlayer();
+	cube::Game* game = cube::GetGame();
+	if (!game)
+	{
+		return creatures;
+	}
+
+	cube::Creature* player = game->GetPlayer();
+	if (!player)
+	{
+		return creatures;
+	}
+
 	LongVector3 position = player->entity_data.position;
 	for (int i = 0; i < amount; i++)
 	{

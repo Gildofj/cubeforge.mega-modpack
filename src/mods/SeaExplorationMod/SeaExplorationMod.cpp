@@ -4,9 +4,18 @@
 
 int SeaExplorationMod::OnChestInteraction(cube::Game* game, cube::Creature* creature, int type)
 {
+	if (!game || !creature)
+	{
+		return 0;
+	}
+
 	game->PrintMessage(L"You opened a treasure chest!\n", 255, 165, 0);
 
 	cube::Creature* player = game->GetPlayer();
+	if (!player)
+	{
+		return 0;
+	}
 
 	switch (type)
 	{
@@ -71,13 +80,19 @@ int SeaExplorationMod::OnChestInteraction(cube::Game* game, cube::Creature* crea
 
 void SeaExplorationMod::OnGameTick(cube::Game* game)
 {
-	if (cube::Helper::InGUI(game) || game->host.running == false)
+	if (!game || cube::Helper::InGUI(game) || !game->host.running)
 	{
 		return;
 	}
 
-	unsigned int flags = game->GetPlayer()->entity_data.flags;
-	if (flags & (1 << (int)cube::Enums::CollisionFlags::Water) && !(flags & (1 << (int)cube::Enums::CollisionFlags::Surfaced)))
+	cube::Creature* player = game->GetPlayer();
+	if (!player)
+	{
+		return;
+	}
+
+	unsigned int flags = player->entity_data.flags;
+	if ((flags & (1 << (int)cube::Enums::CollisionFlags::Water)) && !(flags & (1 << (int)cube::Enums::CollisionFlags::Surfaced)))
 	{
 		if (m_DivingEvent == nullptr)
 		{

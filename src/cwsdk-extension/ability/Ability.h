@@ -7,7 +7,7 @@ namespace cube
 	{
 	public:
 		Ability();
-		~Ability();
+		virtual ~Ability();
 
 		virtual void Execute(cube::Creature* player);
 		static void CWAbility(cube::Creature* player, int id);

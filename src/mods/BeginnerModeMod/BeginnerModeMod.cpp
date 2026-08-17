@@ -2,13 +2,29 @@
 
 static void ApplyBeginnerBuffs(cube::Creature* creature, float* stat)
 {
-	if (creature->entity_data.hostility_type != (char)cube::Enums::EntityBehaviour::Hostile)
+	if (!creature || !stat)
 	{
 		return;
 	}
 
-	int level = cube::GetGame()->GetPlayer()->entity_data.level + 1;
+	if (creature->entity_data.hostility_type != static_cast<char>(cube::Enums::EntityBehaviour::Hostile))
+	{
+		return;
+	}
 
+	cube::Game* game = cube::GetGame();
+	if (!game)
+	{
+		return;
+	}
+
+	cube::Creature* player = game->GetPlayer();
+	if (!player)
+	{
+		return;
+	}
+
+	int level = player->entity_data.level + 1;
 	if (level > 5)
 	{
 		return;
@@ -41,3 +57,4 @@ void BeginnerModeMod::OnCreatureResistanceCalculated(cube::Creature* creature, f
 {
 	ApplyBeginnerBuffs(creature, resistance);
 }
+

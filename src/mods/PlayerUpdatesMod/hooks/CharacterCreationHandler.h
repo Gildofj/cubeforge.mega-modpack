@@ -5,15 +5,15 @@
 
 const static int STANDARD_CLASS_COUNT = 4;
 
-static char* CLASSNAME_ROGUE = "Rogue";
-static wchar_t* CLASSNAME_ROGUE_WIDE = L"Rogue";
+static const char* CLASSNAME_ROGUE = "Rogue";
+static const wchar_t* CLASSNAME_ROGUE_WIDE = L"Rogue";
 
 /*
 * GET CLASS NAME WCHAR_T*
 */
 
 // Note: ID is 0 at rogue, so 1 at the first new class
-extern "C" wchar_t* GetCubeClassNameWide(int id) {
+extern "C" const wchar_t* GetCubeClassNameWide(int id) {
 	int index = id - 1;
 	if (index < 0 || index >= MOD->m_Classes.size())
 	{
@@ -41,7 +41,7 @@ __attribute__((naked)) void ASMSetMenuClassName() {
 */
 
 // Note: ID is 0 at rogue, so 1 at the first new class
-extern "C" char* GetCubeClassName(int id) {
+extern "C" const char* GetCubeClassName(int id) {
 	int index = id - 1;
 	if (index < 0 || index >= MOD->m_Classes.size())
 	{

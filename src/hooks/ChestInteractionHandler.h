@@ -11,9 +11,9 @@
 
 #include "../CubeMod.h"
 
-int ChestInteractionHandler(cube::Game *game, cube::Creature *creature, int type) {
+inline int ChestInteractionHandler(cube::Game *game, cube::Creature *creature, int type) {
 	for (CubeMod* mod : g_Mods) {
-		if (mod->OnChestInteraction(game, creature, type)) {
+		if (mod && mod->OnChestInteraction(game, creature, type)) {
 			return 1;
 		}
 	}
@@ -21,6 +21,11 @@ int ChestInteractionHandler(cube::Game *game, cube::Creature *creature, int type
 }
 
 extern "C" void OnChestInteraction(cube::Game* game, cube::Creature* creature) {
+	if (!game || !creature)
+	{
+		return;
+	}
+
 	int type = creature->entity_data.race - 181;
 	if (!ChestInteractionHandler(game, creature, type))
 	{
@@ -28,9 +33,10 @@ extern "C" void OnChestInteraction(cube::Game* game, cube::Creature* creature) {
 	}
 
 	// Check if the chest is visible on the map.
-	if (creature->entity_data.binary_toggles >> (int)cube::Enums::StateFlags::VisibleOnMap & 1 == 1)
+	unsigned long long mask = (1ULL << (int)cube::Enums::StateFlags::VisibleOnMap);
+	if ((creature->entity_data.binary_toggles & mask) != 0)
 	{
-		creature->entity_data.binary_toggles ^= 1 << (int)cube::Enums::StateFlags::VisibleOnMap;
+		creature->entity_data.binary_toggles &= ~mask;
 	}
 
 	// Open the chest

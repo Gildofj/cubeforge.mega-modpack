@@ -15,8 +15,14 @@ namespace cube
 		EventList();
 		~EventList();
 
-		cube::Event* Find(EventType type);
+		EventList(const EventList&) = delete;
+		EventList& operator=(const EventList&) = delete;
+		EventList(EventList&& other) noexcept;
+		EventList& operator=(EventList&& other) noexcept;
+
+		cube::Event* Find(EventType type) const;
 		void Remove(EventType type);
 		void Add(cube::Event* e);
+		void Clear();
 	};
 }

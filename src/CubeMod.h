@@ -29,18 +29,21 @@ class CubeMod : public GenericMod
 {
 public:
 	std::string m_Name;
-	char* m_FileName;
+	const char* m_FileName;
 	int m_ID;
 	ModVersion m_Version;
 	bool m_Enabled;
 
-	CubeMod() { 
-		m_Name = "Standard Mod Class"; 
-		m_FileName = "StandardModClass";
-		m_ID = 0; 
-		m_Version = { 1, 0, 0 }; 
-		m_Enabled = true; 
+	CubeMod() :
+		m_Name("Standard Mod Class"),
+		m_FileName("StandardModClass"),
+		m_ID(0),
+		m_Version(1, 0, 0),
+		m_Enabled(true)
+	{
 	}
+
+	virtual ~CubeMod() = default;
 
 	/*
 	* Triggers on interaction with chests created from a Creature.
@@ -90,41 +93,43 @@ public:
 	*/
 	inline virtual int OnShopInteraction(cube::Game* game, std::vector<std::vector<cube::ItemStack>>* itemVector, int classType, long long id) { return 0; }
 
-	inline void Save(void* data, int size)
+	inline void Save(const void* data, size_t size)
 	{
-		char fileName[256] = { 0 };
-
-		CreateDirectory(cube::SAVE_FOLDER, NULL);
-		sprintf(fileName, "%s\\%s.sav", cube::SAVE_FOLDER, m_FileName);
-
-		std::ofstream file;
-		file.open(fileName, std::ios::out | std::ios::binary);
-
-		if (!file) {
+		if (!data || size == 0 || !m_FileName) {
 			return;
 		}
 
-		// Write settings
-		file.write((char*)data, sizeof(size));
-
-		file.close();
-	}
-	
-	inline void Load(void* data, int size)
-	{
 		char fileName[256] = { 0 };
+		CreateDirectoryA(cube::SAVE_FOLDER, NULL);
+		snprintf(fileName, sizeof(fileName), "%s\\%s.sav", cube::SAVE_FOLDER, m_FileName);
 
-		CreateDirectory(cube::SAVE_FOLDER, NULL);
-		sprintf(fileName, "%s\\%s.sav", cube::SAVE_FOLDER, m_FileName);
-		std::ifstream file(fileName, std::ios::in | std::ios::binary | std::ios::ate);
-
+		std::ofstream file(fileName, std::ios::out | std::ios::binary);
 		if (!file.is_open()) {
 			return;
 		}
 
-		//File exists, read it
-		file.seekg(0, std::ios::beg);
-		file.read((char*)data, sizeof(size));
+		// Write settings with correct byte size
+		file.write(reinterpret_cast<const char*>(data), static_cast<std::streamsize>(size));
+		file.close();
+	}
+	
+	inline void Load(void* data, size_t size)
+	{
+		if (!data || size == 0 || !m_FileName) {
+			return;
+		}
+
+		char fileName[256] = { 0 };
+		CreateDirectoryA(cube::SAVE_FOLDER, NULL);
+		snprintf(fileName, sizeof(fileName), "%s\\%s.sav", cube::SAVE_FOLDER, m_FileName);
+
+		std::ifstream file(fileName, std::ios::in | std::ios::binary);
+		if (!file.is_open()) {
+			return;
+		}
+
+		// Read settings with correct byte size
+		file.read(reinterpret_cast<char*>(data), static_cast<std::streamsize>(size));
 		file.close();
 	}
 };

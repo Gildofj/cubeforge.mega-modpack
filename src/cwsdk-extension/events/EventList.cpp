@@ -6,17 +6,38 @@ cube::EventList::EventList()
 
 cube::EventList::~EventList()
 {
+	Clear();
+}
+
+cube::EventList::EventList(EventList&& other) noexcept
+	: events(std::move(other.events))
+{
+}
+
+cube::EventList& cube::EventList::operator=(EventList&& other) noexcept
+{
+	if (this != &other)
+	{
+		Clear();
+		events = std::move(other.events);
+	}
+	return *this;
+}
+
+void cube::EventList::Clear()
+{
 	for (cube::Event* e : events)
 	{
 		delete e;
 	}
+	events.clear();
 }
 
-cube::Event* cube::EventList::Find(EventType type)
+cube::Event* cube::EventList::Find(EventType type) const
 {
 	for (cube::Event* e : events)
 	{
-		if (e->eventType == type)
+		if (e && e->eventType == type)
 		{
 			return e;
 		}
@@ -27,22 +48,13 @@ cube::Event* cube::EventList::Find(EventType type)
 
 void cube::EventList::Remove(EventType type)
 {
-	for (int i = 0; i < events.size(); i++)
+	for (auto it = events.begin(); it != events.end(); ++it)
 	{
-		cube::Event* e = events.at(i);
-		if (e->eventType == type)
+		cube::Event* e = *it;
+		if (e && e->eventType == type)
 		{
-			switch (e->eventType)
-			{
-			case EventType::AddGold:
-				delete (cube::AddGoldEvent*)e;
-				break;
-			default:
-				delete e;
-				break;
-			}
-			
-			events.erase(events.begin() + i);
+			delete e;
+			events.erase(it);
 			return;
 		}
 	}
@@ -57,3 +69,4 @@ void cube::EventList::Add(Event* e)
 
 	events.push_back(e);
 }
+

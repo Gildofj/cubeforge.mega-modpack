@@ -119,10 +119,12 @@ EXPORT int ModMinorVersion();
 void WriteByte(void* location, char val);
 void WriteFarJMP(void* source, void* destination);
 
+#if !defined(MODLOADER) && !defined(CWSDK_NO_GLOBAL_NEW_DELETE)
 __declspec(noinline) void* operator new(size_t size);
 __declspec(noinline) void* operator new[](size_t size);
 __declspec(noinline) void operator delete(void* ptr) noexcept;
 __declspec(noinline) void operator delete[](void* ptr) noexcept;
+#endif
 
 class GenericMod {
 	public:

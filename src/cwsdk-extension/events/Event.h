@@ -19,7 +19,7 @@ namespace cube
 		EventType eventType;
 
 		Event();
-		~Event();
+		virtual ~Event();
 
 		virtual void Update();
 	};

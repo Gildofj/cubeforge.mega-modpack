@@ -7,11 +7,14 @@
 void* moduleBase;
 
 void* CWBase(){
+    if (!moduleBase) {
+        moduleBase = (void*)GetModuleHandle(NULL);
+    }
     return moduleBase;
 }
 
 void* CWOffset(size_t offset) {
-	return (void*)((char*)moduleBase + offset);
+	return (void*)((char*)CWBase() + offset);
 }
 
 EXPORT void ModPreInitialize(){
@@ -49,6 +52,7 @@ void WriteFarJMP(void* source, void* destination) {
     VirtualProtect(location, 14, dwOldProtection, &dwOldProtection);
 }
 
+#if !defined(MODLOADER) && !defined(CWSDK_NO_GLOBAL_NEW_DELETE)
 __declspec(noinline) void* operator new(size_t size) {
     return ((void*(*)(size_t))CWOffset(0x392BAC))(size);
 }
@@ -57,8 +61,13 @@ __declspec(noinline) void* operator new[](size_t size) {
 }
 
 __declspec(noinline) void operator delete(void* ptr) noexcept {
-    ((void(*)(void*))CWOffset(0x392BE8))(ptr);
+    if (ptr) {
+        ((void(*)(void*))CWOffset(0x392BE8))(ptr);
+    }
 }
 __declspec(noinline) void operator delete[](void* ptr) noexcept {
-    ((void(*)(void*))CWOffset(0x392BE8))(ptr);
+    if (ptr) {
+        ((void(*)(void*))CWOffset(0x392BE8))(ptr);
+    }
 }
+#endif

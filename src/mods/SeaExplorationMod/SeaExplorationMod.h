@@ -26,8 +26,15 @@ public:
 		Load(&m_Data, sizeof(m_Data));
 	}
 
-	int OnChestInteraction(cube::Game* game, cube::Creature* creature, int type);
-	void OnGameTick(cube::Game* game);
-	int OnChat(std::wstring* message);
-	void Initialize();
+	virtual ~SeaExplorationMod() {
+		if (m_DivingEvent) {
+			delete m_DivingEvent;
+			m_DivingEvent = nullptr;
+		}
+	}
+
+	int OnChestInteraction(cube::Game* game, cube::Creature* creature, int type) override;
+	void OnGameTick(cube::Game* game) override;
+	int OnChat(std::wstring* message) override;
+	void Initialize() override;
 };

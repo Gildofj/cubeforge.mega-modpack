@@ -12,8 +12,8 @@
 class CharacterClass
 {
 public:
-	char* m_Name;
-	wchar_t* m_WideName;
+	const char* m_Name;
+	const wchar_t* m_WideName;
 	int m_Id;
 
 	enum ManaGenerationType : int
@@ -32,8 +32,8 @@ public:
 		AnimationTest = 170,
 	};
 
-	CharacterClass(char* name, wchar_t* widename) : m_Name(name), m_WideName(widename) {};
-	~CharacterClass() {};
+	CharacterClass(const char* name, const wchar_t* widename) : m_Name(name), m_WideName(widename), m_Id(0) {}
+	virtual ~CharacterClass() = default;
 	
 	/*
 	* Called when the starter gear of the class is generated. Anything can be added to the player at this point.
@@ -135,6 +135,7 @@ public:
 
 	static inline void IntializeAbilities(cube::Game* game)
 	{
+		if (!game) return;
 		std::wstring skillCrush(L"SkillCrush");
 		std::wstring skillBullwark(L"SkillBulwark");
 		game->speech.skill_type_id_map.insert_or_assign(100, skillCrush);	

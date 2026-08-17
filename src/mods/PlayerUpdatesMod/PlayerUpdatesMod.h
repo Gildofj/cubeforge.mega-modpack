@@ -14,8 +14,15 @@ public:
 		m_Version = { 1, 1, 0 };
 	}
 
-	void OnGameTick(cube::Game* game);
-	void Initialize();
+	virtual ~PlayerUpdatesMod() {
+		for (CharacterClass* c : m_Classes) {
+			delete c;
+		}
+		m_Classes.clear();
+	}
+
+	void OnGameTick(cube::Game* game) override;
+	void Initialize() override;
 };
 
 /*

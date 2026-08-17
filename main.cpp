@@ -40,36 +40,41 @@ int DisplayOnlyInDebugMessage()
 
 /* Mod class containing all the functions for the mod.
 */
-class Mod : GenericMod {
+class Mod : public GenericMod {
+private:
 	std::vector<CubeMod*> modVector;
 	std::vector<hook::HookEventData> hookEvents;
+
+public:
+	Mod() = default;
+
+	virtual ~Mod() {
+		for (CubeMod* m : modVector) {
+			delete m;
+		}
+		modVector.clear();
+		g_Mods.clear();
+	}
 
 	/* Hook for the chat function. Triggers when a user sends something in the chat.
 	 * @param	{std::wstring*} message
 	 * @return	{int}
 	*/
 	virtual int OnChat(std::wstring* message) override {
+		if (!message) return 0;
+
 		const wchar_t* msg = message->c_str();
 		int ID, value;
 		if (swscanf_s(msg, L"/mod %d %d", &ID, &value) == 2)
 		{
 			for (CubeMod* mod : modVector)
 			{
-				if (mod->m_ID == ID)
+				if (mod && mod->m_ID == ID)
 				{
-					mod->m_Enabled = value == 0 ? false : true;
-					if (mod->m_Enabled)
-					{
-						std::string tmp = "Enabled: ";
-						tmp += mod->m_Name;
-						Popup("Notice", tmp.c_str());
-					}
-					else
-					{
-						std::string tmp = "Disabled: ";
-						tmp += mod->m_Name;
-						Popup("Notice", tmp.c_str());
-					}
+					mod->m_Enabled = (value != 0);
+					std::string tmp = (mod->m_Enabled ? "Enabled: " : "Disabled: ");
+					tmp += mod->m_Name;
+					Popup("Notice", tmp.c_str());
 				}
 			}
 			cube::SaveSettings(&modVector);
@@ -78,22 +83,31 @@ class Mod : GenericMod {
 
 		if (swscanf_s(msg, L"/class %d", &ID) == 1)
 		{
-			cube::Creature* player = cube::GetGame()->GetPlayer();
+			cube::Game* game = cube::GetGame();
+			if (!game) return 0;
+			cube::Creature* player = game->GetPlayer();
+			if (!player) return 0;
+
 			cube::Creature* creature = cube::CreatureFactory::SpawnCreature(player->entity_data.position, player->entity_data.current_region,
 				304, (int)cube::Enums::EntityBehaviour::NPC, 1);
-			creature->entity_data.appearance.flags2 |= 1 << (int)cube::Enums::AppearanceModifiers::NeededForGemTrader;
-			creature->entity_data.classType = ID;
-			creature->entity_data.specialization = 1;
+			if (creature)
+			{
+				creature->entity_data.appearance.flags2 |= 1 << (int)cube::Enums::AppearanceModifiers::NeededForGemTrader;
+				creature->entity_data.classType = ID;
+				creature->entity_data.specialization = 1;
+			}
 			return 0;
 		}
 
-		int type, subtype;
+		int type;
 		if (swscanf_s(msg, L"/t %d", &type) == 1)
 		{
 			cube::Game* game = cube::GetGame();
-			cube::World* world = game->world;
+			if (!game) return 0;
+			cube::Creature* player = game->GetPlayer();
+			if (!player) return 0;
 
-			cube::Creature::AnimationState* animationState = &game->GetPlayer()->animation_state;
+			cube::Creature::AnimationState* animationState = &player->animation_state;
 			animationState->current_animation_state_timer = 0.f;
 			animationState->current_animation_state_id = type;
 			return 1;
@@ -101,7 +115,7 @@ class Mod : GenericMod {
 
 		for (CubeMod* mod : g_Mods)
 		{
-			if (mod->OnChat(message))
+			if (mod && mod->OnChat(message))
 			{
 				return 1;
 			}
@@ -116,30 +130,29 @@ class Mod : GenericMod {
 	*/
 	virtual void OnGameTick(cube::Game* game) override {
 		for (CubeMod* mod : g_Mods) {
-			mod->OnGameTick(game);
+			if (mod) mod->OnGameTick(game);
 		}
 
-		for (hook::HookEventData e : hookEvents)
+		for (const hook::HookEventData& e : hookEvents)
 		{
 			switch (e.type)
 			{
 			case hook::HookEvent::LoreInteraction:
 				for (CubeMod* mod : g_Mods) {
-					mod->OnLoreIncrease(game, e.data);
+					if (mod) mod->OnLoreIncrease(game, e.data);
 				}
+				break;
 			default:
 				break;
 			}
 		}
 		hookEvents.clear();
-
-		return;
 	}
 
-	void OnGetKeyboardState(BYTE* diKeys) override {
+	virtual void OnGetKeyboardState(BYTE* diKeys) override {
 		for (CubeMod* mod : g_Mods)
 		{
-			mod->OnGetKeyboardState(diKeys);
+			if (mod) mod->OnGetKeyboardState(diKeys);
 		}
 	}
 
@@ -166,9 +179,9 @@ class Mod : GenericMod {
 		cube::SaveSettings(&modVector);
 
 		// Add enabled mods to the global modlist.
-		for (int i = 0; i < modVector.size(); i++)
+		for (size_t i = 0; i < modVector.size(); i++)
 		{
-			if (modVector.at(i)->m_Enabled)
+			if (modVector.at(i) && modVector.at(i)->m_Enabled)
 			{
 				g_Mods.push_back(modVector.at(i));
 			}
@@ -177,6 +190,7 @@ class Mod : GenericMod {
 		// Modified from https://github.com/ChrisMiuchiz/Cube-World-Mod-Launcher/blob/master/CubeModLoader/main.cpp.
 		std::string mods("CubeMegaMods Active:\n");
 		for (CubeMod* mod : g_Mods) {
+			if (!mod) continue;
 			mods += " - (ID: ";
 			mods += std::to_string(mod->m_ID);
 			mods += ") ";
@@ -185,7 +199,7 @@ class Mod : GenericMod {
 			mods += mod->m_Version.ToString();
 			mods += "]\n";
 		}
-		if (g_Mods.size() == 0) {
+		if (g_Mods.empty()) {
 			mods += "<No mods>\n";
 		}
 		Popup("CubeMegaMods", mods.c_str());
@@ -201,81 +215,79 @@ class Mod : GenericMod {
 
 		for (CubeMod* mod : g_Mods)
 		{
-			mod->Initialize();
-		}
-
-		return;
-	}
-
-	void OnCreatureArmorCalculated(cube::Creature* creature, float* armor)
-	{
-		for (CubeMod* mod : g_Mods)
-		{
-			mod->OnCreatureArmorCalculated(creature, armor);
+			if (mod) mod->Initialize();
 		}
 	}
 
-	void OnCreatureCriticalCalculated(cube::Creature* creature, float* critical)
+	virtual void OnCreatureArmorCalculated(cube::Creature* creature, float* armor) override
 	{
 		for (CubeMod* mod : g_Mods)
 		{
-			mod->OnCreatureCriticalCalculated(creature, critical);
+			if (mod) mod->OnCreatureArmorCalculated(creature, armor);
 		}
 	}
 
-	void OnCreatureAttackPowerCalculated(cube::Creature* creature, float* power)
+	virtual void OnCreatureCriticalCalculated(cube::Creature* creature, float* critical) override
 	{
 		for (CubeMod* mod : g_Mods)
 		{
-			mod->OnCreatureAttackPowerCalculated(creature, power);
+			if (mod) mod->OnCreatureCriticalCalculated(creature, critical);
 		}
 	}
 
-	void OnCreatureSpellPowerCalculated(cube::Creature* creature, float* power)
+	virtual void OnCreatureAttackPowerCalculated(cube::Creature* creature, float* power) override
 	{
 		for (CubeMod* mod : g_Mods)
 		{
-			mod->OnCreatureSpellPowerCalculated(creature, power);
+			if (mod) mod->OnCreatureAttackPowerCalculated(creature, power);
 		}
 	}
 
-	void OnCreatureHasteCalculated(cube::Creature* creature, float* haste)
+	virtual void OnCreatureSpellPowerCalculated(cube::Creature* creature, float* power) override
 	{
 		for (CubeMod* mod : g_Mods)
 		{
-			mod->OnCreatureHasteCalculated(creature, haste);
+			if (mod) mod->OnCreatureSpellPowerCalculated(creature, power);
 		}
 	}
 
-	void OnCreatureHPCalculated(cube::Creature* creature, float* hp)
+	virtual void OnCreatureHasteCalculated(cube::Creature* creature, float* haste) override
 	{
 		for (CubeMod* mod : g_Mods)
 		{
-			mod->OnCreatureHPCalculated(creature, hp);
+			if (mod) mod->OnCreatureHasteCalculated(creature, haste);
 		}
 	}
 
-	void OnCreatureResistanceCalculated(cube::Creature* creature, float* resistance)
+	virtual void OnCreatureHPCalculated(cube::Creature* creature, float* hp) override
 	{
 		for (CubeMod* mod : g_Mods)
 		{
-			mod->OnCreatureResistanceCalculated(creature, resistance);
+			if (mod) mod->OnCreatureHPCalculated(creature, hp);
 		}
 	}
 
-	void OnCreatureRegenerationCalculated(cube::Creature* creature, float* regeneration)
+	virtual void OnCreatureResistanceCalculated(cube::Creature* creature, float* resistance) override
 	{
 		for (CubeMod* mod : g_Mods)
 		{
-			mod->OnCreatureRegenerationCalculated(creature, regeneration);
+			if (mod) mod->OnCreatureResistanceCalculated(creature, resistance);
 		}
 	}
 
-	void OnCreatureManaGenerationCalculated(cube::Creature* creature, float* manaGeneration)
+	virtual void OnCreatureRegenerationCalculated(cube::Creature* creature, float* regeneration) override
 	{
 		for (CubeMod* mod : g_Mods)
 		{
-			mod->OnCreatureManaGenerationCalculated(creature, manaGeneration);
+			if (mod) mod->OnCreatureRegenerationCalculated(creature, regeneration);
+		}
+	}
+
+	virtual void OnCreatureManaGenerationCalculated(cube::Creature* creature, float* manaGeneration) override
+	{
+		for (CubeMod* mod : g_Mods)
+		{
+			if (mod) mod->OnCreatureManaGenerationCalculated(creature, manaGeneration);
 		}
 	}
 };

@@ -27,7 +27,8 @@ void CombatUpdateMod::OnGetKeyboardState(BYTE* diKeys)
 	static cube::DButton Key1(2); //1
 	static cube::DButton Key2(3); //2
 
-	if (cube::Helper::InGUI(cube::GetGame()))
+	cube::Game* game = cube::GetGame();
+	if (!game || cube::Helper::InGUI(game))
 	{
 		return;
 	}
@@ -42,7 +43,11 @@ void CombatUpdateMod::OnGetKeyboardState(BYTE* diKeys)
 	Key1.Update(diKeys);
 	Key2.Update(diKeys);
 
-	cube::Creature* player = cube::GetGame()->GetPlayer();
+	cube::Creature* player = game->GetPlayer();
+	if (!player)
+	{
+		return;
+	}
 
 	if (Key1.Pressed() == cube::DButton::State::Pressed)
 	{

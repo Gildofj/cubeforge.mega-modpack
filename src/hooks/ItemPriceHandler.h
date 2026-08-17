@@ -5,11 +5,16 @@
 
 #pragma once
 #include "cwsdk.h"
-#include <math.h> 
+#include <cmath> 
 
 #include "../CubeMod.h"
 
 extern "C" void OnItemPriceHandler(cube::Item* item, int* price) {
+	if (!item || !price)
+	{
+		return;
+	}
+
 	switch (item->category)
 	{
 	case 1:
@@ -42,14 +47,13 @@ extern "C" void OnItemPriceHandler(cube::Item* item, int* price) {
 		}
 		break;
 	default:
-
 		break;
 	}
 }
 
 extern "C" float callPowf(float a1, float a2)
 {
-	return std::powf(a1, a2);
+	return std::pow(a1, a2);
 }
 
 GETTER_VAR(void*, ASMItemPrice_jmpback);

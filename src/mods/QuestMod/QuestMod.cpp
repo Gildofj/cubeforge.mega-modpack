@@ -32,20 +32,27 @@ void QuestMod::Initialize()
 
 void QuestMod::OnCreatureDeath(cube::Creature* creature, cube::Creature* attacker)
 {
-	//cube::Creature* player = cube::GetGame()->GetPlayer();
+	if (!creature || !attacker)
+	{
+		return;
+	}
+
+	cube::Game* game = cube::GetGame();
+	if (!game || !game->world)
+	{
+		return;
+	}
 	
 	cube::Creature* foundPlayer = nullptr;
-	for (cube::Creature* c : cube::GetGame()->world->creatures)
+	for (cube::Creature* c : game->world->creatures)
 	{
+		if (!c) continue;
 		if (c->entity_data.hostility_type == (int)cube::Enums::EntityBehaviour::Player)
 		{
-			if (c->id == attacker->id)
+			if (c->id == attacker->id || c->pet_id == attacker->id)
 			{
 				foundPlayer = c;
-			}
-			else if (c->pet_id == attacker->id)
-			{
-				foundPlayer = c;
+				break;
 			}
 		}
 	}
@@ -55,14 +62,14 @@ void QuestMod::OnCreatureDeath(cube::Creature* creature, cube::Creature* attacke
 		return;
 	}
 	
-	if (foundPlayer->inventory_tabs.size() < cube::Inventory::IngredientsTab)
+	if (foundPlayer->inventory_tabs.size() <= static_cast<size_t>(cube::Inventory::IngredientsTab))
 	{
 		return;
 	}
 
 	auto ingredients = &foundPlayer->inventory_tabs.at(cube::Inventory::IngredientsTab);
 
-	for (int i = ingredients->size() - 1; i >= 0 ; i--)
+	for (int i = static_cast<int>(ingredients->size()) - 1; i >= 0 ; i--)
 	{
 		cube::ItemStack* stack = &ingredients->at(i);
 		if (stack->item.category == 2)
@@ -86,6 +93,11 @@ void QuestMod::OnCreatureDeath(cube::Creature* creature, cube::Creature* attacke
 
 int QuestMod::OnCreatureTalk(cube::Game* game, cube::Creature* creature)
 {
+	if (!game || !creature)
+	{
+		return 0;
+	}
+
 	// Check if already talked to.
 	if (std::find(m_TalkedIds.begin(), m_TalkedIds.end(), creature->id) != m_TalkedIds.end())
 	{
@@ -94,7 +106,7 @@ int QuestMod::OnCreatureTalk(cube::Game* game, cube::Creature* creature)
 	// Pushing in front, to make the find return faster on the latest NPC's talked to.
 	m_TalkedIds.push_front(creature->id);
 
-	// Check elledgible to drop a quest.
+	// Check eligible to drop a quest.
 	if (creature->id % 5 != 0)
 	{
 		return 0;
@@ -107,10 +119,14 @@ int QuestMod::OnCreatureTalk(cube::Game* game, cube::Creature* creature)
 	}
 
 	cube::Item item(2, 0);
-	item.modifier = (mod / 4) * 4; // Make multiple of 4.
-	item.rarity = mod % 5;
-	cube::Creature* player = cube::GetGame()->GetPlayer();
-	cube::Helper::DropItem(player, item, 1);
+	item.modifier = static_cast<int>((mod / 4) * 4); // Make multiple of 4.
+	item.rarity = static_cast<char>(mod % 5);
+
+	cube::Creature* player = game->GetPlayer();
+	if (player)
+	{
+		cube::Helper::DropItem(player, item, 1);
+	}
 
 	return 0;
 }

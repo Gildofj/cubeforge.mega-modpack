@@ -98,6 +98,7 @@ add_library (CWSDK
     plasma/Vector.cpp
     plasma/Widget.cpp "cube/SaveData.h" "cube/SaveData.cpp")
 target_link_libraries(CWSDK winmm.lib)
+target_compile_definitions(CWSDK PUBLIC MODLOADER)
 target_include_directories (CWSDK PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (CWSDK PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/CWSDK)
 target_include_directories (CWSDK PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/CWSDK/common)

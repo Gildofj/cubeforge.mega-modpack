@@ -152,7 +152,7 @@ int cube::Helper::CheckIfCreatureExists(cube::Game* game, __int64 id)
 
 __int64 cube::Helper::UpdateCreatureID(cube::Game* game, __int64 id)
 {
-
+	return id;
 }
 
 void cube::Helper::LoreInteraction(cube::Creature* player, int percentage)
