@@ -17,8 +17,6 @@
 #include "src/mods/StackUpdatesMod/StackUpdatesMod.h"
 #include "src/CubeMod.h"
 
-GLOBAL std::vector<CubeMod*> g_Mods;
-GLOBAL char* g_Base;
 
 #include "src/hooks/ChestInteractionHandler.h"
 #include "src/hooks/ShopInteractionHandler.h"
@@ -129,6 +127,13 @@ public:
 	 * @return	{void}
 	*/
 	virtual void OnGameTick(cube::Game* game) override {
+		static bool greeted = false;
+		if (!greeted && game && game->GetPlayer()) {
+			greeted = true;
+			std::wstring welcome = L"[CubeMegaMod] Mod carregado com sucesso!\n";
+			game->PrintMessage(welcome.c_str(), 100, 255, 100);
+		}
+
 		for (CubeMod* mod : g_Mods) {
 			if (mod) mod->OnGameTick(game);
 		}
@@ -186,23 +191,6 @@ public:
 				g_Mods.push_back(modVector.at(i));
 			}
 		}
-
-		// Modified from https://github.com/ChrisMiuchiz/Cube-World-Mod-Launcher/blob/master/CubeModLoader/main.cpp.
-		std::string mods("CubeMegaMods Active:\n");
-		for (CubeMod* mod : g_Mods) {
-			if (!mod) continue;
-			mods += " - (ID: ";
-			mods += std::to_string(mod->m_ID);
-			mods += ") ";
-			mods += mod->m_Name;
-			mods += " [";
-			mods += mod->m_Version.ToString();
-			mods += "]\n";
-		}
-		if (g_Mods.empty()) {
-			mods += "<No mods>\n";
-		}
-		Popup("CubeMegaMods", mods.c_str());
 
 		// Setup handlers
 		SetupChestInteractionHandler();

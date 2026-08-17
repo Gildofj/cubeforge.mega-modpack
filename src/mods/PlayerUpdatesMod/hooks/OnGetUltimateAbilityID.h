@@ -47,15 +47,7 @@ extern "C" int OnGetUltimateAbilityID(cube::Creature* player) {
 	return 0;
 }
 
-__attribute__((naked)) void ASMOnGetUltimateAbilityID() {
-	asm(".intel_syntax \n"
-
-		"call OnGetUltimateAbilityID \n"
-		"retn \n"
-
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMOnGetUltimateAbilityID();
 
 void InitializeOnGetUltimateIDHandler()
 {

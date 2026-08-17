@@ -44,31 +44,7 @@ extern "C" void DropGold(cube::Creature* p1, void* p2) {
 
 GETTER_VAR(void*, ASMDropGoldOnHit_jmpback);
 GETTER_VAR(void*, ASMDropGoldOnHit_bail);
-__attribute__((naked)) void ASMDropGoldOnHit() {
-	asm(".intel_syntax \n"
-		"mov r14, [rsp+0x20] \n"
-		PUSH_ALL
-		"mov rdx, r14 \n"
-		"mov rcx, r13 \n"
-
-		PREPARE_STACK
-
-		"call DropGold \n"
-
-		RESTORE_STACK
-
-		POP_ALL
-
-		"comiss xmm9, [r13+0x180] \n"
-		"jb 1f \n"
-
-		DEREF_JMP(ASMDropGoldOnHit_jmpback)
-
-		"1: \n"
-		DEREF_JMP(ASMDropGoldOnHit_bail)
-		".att_syntax \n"
-		);
-}
+extern "C" void ASMDropGoldOnHit();
 
 void SetupDropGoldOnHitHandler() {
 	// Setup asm hook

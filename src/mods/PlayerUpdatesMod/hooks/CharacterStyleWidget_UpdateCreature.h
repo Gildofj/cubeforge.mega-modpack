@@ -5,13 +5,7 @@ extern "C" void CharacterStyleWidgetUpdateCreature(cube::CharacterStyleWidget * 
 
 }
 
-__attribute__((naked)) void ASMCharacterStyleWidgetUpdateCreature() {
-	asm(".intel_syntax \n"
-
-		"retn \n"
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMCharacterStyleWidgetUpdateCreature();
 
 void InitializeCharacterStyleWidgetUpdateCreatureHandler() {
 	WriteFarJMP(CWOffset(0x272D90), (void*)&ASMCharacterStyleWidgetUpdateCreature);

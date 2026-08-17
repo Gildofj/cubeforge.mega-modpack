@@ -114,15 +114,23 @@ All project documentation is organized under [`docs/`](file:///d:/Projects/CubeM
 
 ## 🛠️ Building from Source
 
-```bash
-# Clone with submodules
-git clone --recurse-submodules https://github.com/Nichiren/CubeMegaMod.git
-cd CubeMegaMod
+Você pode compilar o projeto com apenas **um comando**:
 
-# Open in Visual Studio 2019/2022 and build with x64-Clang-Release
+```bash
+# Opção 1: GNU Make (Gera a DLL e salva em dist/)
+make
+
+# Opção 2: Script Windows (PowerShell / Prompt de Comando)
+.\build.bat
 ```
 
-Refer to the [Building Guide](file:///d:/Projects/CubeMegaMod/docs/guides/BUILDING.md) for full compilation steps.
+Para rodar os testes unitários ou limpar:
+```bash
+make test    # Executa a suite de testes unitários
+make clean   # Limpa artefatos de build
+```
+
+Consulte o [Guia de Compilação](file:///d:/Projects/CubeMegaMod/docs/guides/BUILDING.md) para detalhes avançados e configuração do Visual Studio.
 
 ---
 

@@ -57,8 +57,11 @@ set(EXTENSION_SOURCES
     "src/cwsdk-extension/Timer.h"
 )
 
+enable_language(ASM_MASM)
+
 # Hook Sources
 set(HOOK_SOURCES
+    "src/asm/hooks_x64.asm"
     "src/hooks.cpp"
     "src/hooks.h"
     "src/hooks/chest_opening.h"

@@ -46,15 +46,7 @@ extern "C" int OnGetUltimateAbilityCooldown(cube::Creature * player, int ability
 	return MOD->m_Classes.at(index)->GetUltimateAbilityCooldown(player, abilityID);
 }
 
-__attribute__((naked)) void ASMOnGetUltimateAbilityCooldown() {
-	asm(".intel_syntax \n"
-
-		"call OnGetUltimateAbilityCooldown \n"
-		"retn \n"
-
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMOnGetUltimateAbilityCooldown();
 
 void InitializeOnGetUltimateCooldownHandler()
 {

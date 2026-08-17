@@ -35,35 +35,52 @@ git submodule update --init --recursive
 
 ---
 
-## 3. Building with Visual Studio (Recommended)
+---
 
-1. Open **Visual Studio 2019 / 2022**.
-2. Select **Open a local folder** and choose the `CubeMegaMod` root directory.
-3. In the configuration dropdown, select **`x64-Clang-Release`** (or `x64-Clang-Debug`).
-   - If the configuration is not present, configure `CMakeSettings.json` to target Clang x64.
-4. Open the CMake target dropdown, choose `CubeMegaMod-v1.5.9.dll`.
-5. Click **Build -> Build All** (or press `Ctrl + Shift + B`).
-6. The compiled binary will be placed under:
-   ```text
-   out/build/x64-Clang-Release/CubeMegaMod-v1.5.9.dll
-   ```
+## 3. Quick Automated Build (1-Command)
+
+Você pode compilar o mod inteiro com apenas **um comando** a partir da raiz do repositório:
+
+### Opção A: Usando `make` (Recomendado)
+```bash
+# Compila a DLL e copia automaticamente para a pasta dist/
+make
+
+# Executa todos os testes unitários
+make test
+
+# Limpa os diretórios de build e dist
+make clean
+```
+
+### Opção B: Usando o Script PowerShell / Batch
+```powershell
+# No PowerShell ou Prompt de Comando
+.\build.bat
+
+# Ou com testes automatizados:
+.\build.bat -Test
+
+# Limpeza completa:
+.\build.bat -Clean
+```
 
 ---
 
-## 4. Building via Command Line (CMake + Ninja)
+## 4. Building with Visual Studio
 
-From an `x64 Native Tools Command Prompt for VS`:
+1. Open **Visual Studio 2019 / 2022**.
+2. Select **Open a local folder** and choose the `CubeMegaMod` root directory.
+3. In the configuration dropdown, select **`x64-Clang-Release`** (or `x64-Release`).
+4. Click **Build -> Build All** (or press `Ctrl + Shift + B`).
+
+---
+
+## 5. Manual Build via Command Line (CMake)
 
 ```bash
-# 1. Create build directory
-mkdir build
-cd build
-
-# 2. Configure CMake with Clang toolset
-cmake .. -G "Ninja" -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl -DCMAKE_BUILD_TYPE=Release
-
-# 3. Compile the DLL target
-cmake --build . --config Release --target CubeMegaMod-v1.5.9
+cmake -B build -A x64
+cmake --build build --config Release
 ```
 
 ---

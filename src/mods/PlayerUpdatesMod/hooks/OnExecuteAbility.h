@@ -73,65 +73,7 @@ void AnimationTest(cube::World* world, cube::Creature* player)
 
 GETTER_VAR(void*, ASMOnExecuteAbility_jmpback);
 GETTER_VAR(void*, ASMOnExecuteAbility_jmpback_2);
-//GETTER_VAR(void*, ASMOnCanEquipItem_bail);
-__attribute__((naked)) void ASMOnExecuteAbility() {
-	asm(".intel_syntax \n"
-		"mov rax, rsp \n"
-		"sub rsp, 0x110 \n"
-		"movaps xmmword ptr [rax - 0x10], xmm0 \n"
-		"movaps xmmword ptr [rax - 0x20], xmm1 \n"
-		"movaps xmmword ptr [rax - 0x30], xmm2 \n"
-		"movaps xmmword ptr [rax - 0x40], xmm3 \n"
-		"movaps xmmword ptr [rax - 0x50], xmm4 \n"
-		"movaps xmmword ptr [rax - 0x60], xmm5 \n"
-		"movaps xmmword ptr [rax - 0x70], xmm6 \n"
-		"movaps xmmword ptr [rax - 0x80], xmm7 \n"
-		"movaps xmmword ptr [rax - 0x90], xmm8 \n"
-		"movaps xmmword ptr [rax - 0xA0], xmm9 \n"
-		"movaps xmmword ptr [rax - 0xB0], xmm10 \n"
-		"movaps xmmword ptr [rax - 0xC0], xmm11 \n"
-		"movaps xmmword ptr [rax - 0xD0], xmm12 \n"
-		"movaps xmmword ptr [rax - 0xE0], xmm13 \n"
-		"movaps xmmword ptr [rax - 0xF0], xmm14 \n"
-		"movaps xmmword ptr [rax - 0x100], xmm15 \n"
-		PUSH_ALL
-		"mov rdx, r13 \n"
-		"mov rcx, r15 \n"
-		PREPARE_STACK
-		"call OnExecuteAbility \n"
-		RESTORE_STACK
-		POP_ALL
-		"movaps xmm0, xmmword ptr [rax - 0x10] \n"
-		"movaps xmm1, xmmword ptr [rax - 0x20] \n"
-		"movaps xmm2, xmmword ptr [rax - 0x30] \n"
-		"movaps xmm3, xmmword ptr [rax - 0x40] \n"
-		"movaps xmm4, xmmword ptr [rax - 0x50] \n"
-		"movaps xmm5, xmmword ptr [rax - 0x60] \n"
-		"movaps xmm6, xmmword ptr [rax - 0x70] \n"
-		"movaps xmm7, xmmword ptr [rax - 0x80] \n"
-		"movaps xmm8, xmmword ptr [rax - 0x90] \n"
-		"movaps xmm9, xmmword ptr [rax - 0xA0] \n"
-		"movaps xmm10, xmmword ptr [rax - 0xB0] \n"
-		"movaps xmm11, xmmword ptr [rax - 0xC0] \n"
-		"movaps xmm12, xmmword ptr [rax - 0xD0] \n"
-		"movaps xmm13, xmmword ptr [rax - 0xE0] \n"
-		"movaps xmm14, xmmword ptr [rax - 0xF0] \n"
-		"movaps xmm15, xmmword ptr [rax - 0x100] \n"
-		"add rsp, 0x110 \n"
-		
-		// Original code
-		"xorps xmm15, xmm15 \n"
-		"cmp byte ptr[r13 + 0x68], 0x85 \n"
-		"jnz 1f \n"
-		"movss xmm0, dword ptr[r13 + 0x44] \n"
-		DEREF_JMP(ASMOnExecuteAbility_jmpback)
-
-		"1: \n"
-		DEREF_JMP(ASMOnExecuteAbility_jmpback_2)
-
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMOnExecuteAbility();
 
 void InitializeOnExecuteAbilityHandler()
 {

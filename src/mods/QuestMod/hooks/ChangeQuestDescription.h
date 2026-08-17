@@ -30,48 +30,7 @@ extern "C" int OnGetItemDescription(cube::BaseWidget* widget, cube::Item* item, 
 GETTER_VAR(void*, ASMOnGetItemDescription_jmpback);
 GETTER_VAR(void*, ASMOnGetItemDescription_jmpback_2);
 GETTER_VAR(void*, ASMOnGetItemDescription_bail);
-__attribute__((naked)) void ASMOnGetItemDescription() {
-	asm(".intel_syntax \n"
-
-		// old code
-		"movss dword ptr [rsi + 0x1B0], xmm13 \n"
-
-		PUSH_ALL
-
-		"mov rcx, rsi \n"
-		"mov rdx, r14 \n"
-		"mov r8, rdi \n"
-
-		PREPARE_STACK
-
-		"call OnGetItemDescription \n"
-
-		RESTORE_STACK
-
-		"cmp rax, 1 \n"
-		"je 1f \n"
-
-		POP_ALL
-
-		// old code
-		"cmp byte ptr[r14], 0x01 \n"
-		"jnz 2f \n"
-
-		DEREF_JMP(ASMOnGetItemDescription_jmpback)
-
-		"2: \n"
-
-		DEREF_JMP(ASMOnGetItemDescription_jmpback_2)
-
-		"1: \n" // bail
-		POP_ALL
-
-		"movss xmm0, xmm10 \n"
-		DEREF_JMP(ASMOnGetItemDescription_jmpback_2)
-
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMOnGetItemDescription();
 
 void SetupOnGetItemDescription()
 {

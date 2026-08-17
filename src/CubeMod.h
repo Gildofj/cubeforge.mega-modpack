@@ -8,6 +8,10 @@
 #include "cwsdk-extension.h"
 #include "hooks.h"
 
+class CubeMod;
+inline std::vector<CubeMod*> g_Mods;
+inline char* g_Base = nullptr;
+
 /*
 * Structure for defining the version of a mod.
 */

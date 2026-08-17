@@ -74,31 +74,7 @@ extern "C" int OnShiftAbilityID(cube::Game* game, cube::Creature* player) {
 
 GETTER_VAR(void*, ASMOnGetShiftAbilityID_jmpback);
 GETTER_VAR(void*, ASMOnGetShiftAbilityID_jmpback_2);
-__attribute__((naked)) void ASMOnGetShiftAbilityID() {
-	asm(".intel_syntax \n"
-
-		// old code
-		"mov rax, [r13 + 8] \n"
-		"mov rcx, [rax + 0x448] \n"
-
-		PUSH_ALL
-		"mov rdx, rcx \n"
-		"mov rcx, r13 \n"
-		PREPARE_STACK
-		"call OnShiftAbilityID \n"
-		RESTORE_STACK
-		POP_ALL
-		// old code
-		"cmp byte ptr [rcx + 0x14C], 4 \n"
-		"jne 1f \n"
-		DEREF_JMP(ASMOnGetShiftAbilityID_jmpback)
-
-		"1: \n"
-		DEREF_JMP(ASMOnGetShiftAbilityID_jmpback_2)
-
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMOnGetShiftAbilityID();
 
 void InitializeOnGetShiftIDHandler()
 {

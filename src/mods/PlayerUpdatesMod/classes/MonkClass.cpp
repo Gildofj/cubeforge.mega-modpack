@@ -1,8 +1,6 @@
 #include "MonkClass.h"
 
-void Popup(const char* title, const char* msg) {
-	MessageBoxA(0, msg, title, MB_OK | MB_ICONINFORMATION);
-}
+
 
 void MonkClass::Initialize(cube::Game* game, int id)
 {

@@ -137,55 +137,7 @@ extern "C" int GetBuildingType(cube::World* world, long long x, long long y, Int
 	return 0;
 }
 
-__attribute__((naked)) void ASMBuildingTypeOverride() {
-	asm(".intel_syntax \n"
-
-		"sub rsp, 0x110 \n"
-		"movups xmmword ptr [rsp + 0x10], xmm0 \n"
-		"movups xmmword ptr [rsp + 0x20], xmm1 \n"
-		"movups xmmword ptr [rsp + 0x30], xmm2 \n"
-		"movups xmmword ptr [rsp + 0x40], xmm3 \n"
-		"movups xmmword ptr [rsp + 0x50], xmm4 \n"
-		"movups xmmword ptr [rsp + 0x60], xmm5 \n"
-		"movups xmmword ptr [rsp + 0x70], xmm6 \n"
-		"movups xmmword ptr [rsp + 0x80], xmm7 \n"
-		"movups xmmword ptr [rsp + 0x90], xmm8 \n"
-		"movups xmmword ptr [rsp + 0xA0], xmm9 \n"
-		"movups xmmword ptr [rsp + 0xB0], xmm10 \n"
-		"movups xmmword ptr [rsp + 0xC0], xmm11 \n"
-		"movups xmmword ptr [rsp + 0xD0], xmm12 \n"
-		"movups xmmword ptr [rsp + 0xE0], xmm13 \n"
-		"movups xmmword ptr [rsp + 0xF0], xmm14 \n"
-		"movups xmmword ptr [rsp + 0x100], xmm15 \n"
-
-		PREPARE_STACK
-		"call GetBuildingType \n"
-		RESTORE_STACK
-
-		"movups xmm0, xmmword ptr [rsp + 0x10] \n"
-		"movups xmm1, xmmword ptr [rsp + 0x20] \n"
-		"movups xmm2, xmmword ptr [rsp + 0x30] \n"
-		"movups xmm3, xmmword ptr [rsp + 0x40] \n"
-		"movups xmm4, xmmword ptr [rsp + 0x50] \n"
-		"movups xmm5, xmmword ptr [rsp + 0x60] \n"
-		"movups xmm6, xmmword ptr [rsp + 0x70] \n"
-		"movups xmm7, xmmword ptr [rsp + 0x80] \n"
-		"movups xmm8, xmmword ptr [rsp + 0x90] \n"
-		"movups xmm9, xmmword ptr [rsp + 0xA0] \n"
-		"movups xmm10, xmmword ptr [rsp + 0xB0] \n"
-		"movups xmm11, xmmword ptr [rsp + 0xC0] \n"
-		"movups xmm12, xmmword ptr [rsp + 0xD0] \n"
-		"movups xmm13, xmmword ptr [rsp + 0xE0] \n"
-		"movups xmm14, xmmword ptr [rsp + 0xF0] \n"
-		"movups xmm15, xmmword ptr [rsp + 0x100] \n"
-
-		"add rsp, 0x110 \n"
-
-		"ret \n"
-
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMBuildingTypeOverride();
 
 void BuildingTypeOverrideIntialize()
 {

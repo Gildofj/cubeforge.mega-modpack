@@ -297,160 +297,28 @@ extern "C" int OnGetHairColorDisplay(cube::CharacterStyleWidget * widget)
 
 GETTER_VAR(void*, ASMOnDrawColorPicker_jmpback);
 GETTER_VAR(void*, ASMOnDrawColorPicker_bail);
-__attribute__((naked)) void ASMOnDrawColorPicker() {
-	asm(".intel_syntax \n"
-		// Set parameters
-		"mov rcx, rdi \n"	// cube::CharacterStyleWidget* widget
-
-		// Call function
-		PREPARE_STACK
-		"call OnGetHairColorDisplay \n"
-		RESTORE_STACK
-
-		"xorps xmm0, xmm0 \n"
-		"movdqu [rbp + 0x58], xmm0 \n"
-		"mov [rbp + 0x68], rsi \n"
-
-		"cmp rax, 1 \n"
-		"jne 1f \n"
-
-		DEREF_JMP(ASMOnDrawColorPicker_jmpback)
-
-		"1: \n"
-		DEREF_JMP(ASMOnDrawColorPicker_bail)
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMOnDrawColorPicker();
 
 GETTER_VAR(void*, ASMOnDrawHairColor_jmpback);
-__attribute__((naked)) void ASMOnDrawHairColor() {
-	asm(".intel_syntax \n"
-		// Set parameters
-		"lea rcx, [rsp + 0x50] \n"	// void* toAppend
-		"mov rdx, rdi \n"			// cube::CharacterStyleWidget* widget
-
-		// Call function
-		PREPARE_STACK
-		"call OnGetHairColorText \n"
-		RESTORE_STACK
-
-		DEREF_JMP(ASMOnDrawHairColor_jmpback)
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMOnDrawHairColor();
 
 GETTER_VAR(void*, ASMOnDrawHairCut_jmpback);
-__attribute__((naked)) void ASMOnDrawHairCut() {
-	asm(".intel_syntax \n"
-		// Set parameters
-		"lea rcx, [rsp + 0x50] \n"	// void* toAppend
-		"mov rdx, rdi \n"			// cube::CharacterStyleWidget* widget
-
-		// Call function
-		PREPARE_STACK
-		"call OnGetHairCutText \n"
-		RESTORE_STACK
-
-		DEREF_JMP(ASMOnDrawHairCut_jmpback)
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMOnDrawHairCut();
 
 GETTER_VAR(void*, ASMOnDrawFace_jmpback);
-__attribute__((naked)) void ASMOnDrawFace() {
-	asm(".intel_syntax \n"
-		// Set parameters
-		"lea rcx, [rsp + 0x50] \n"	// void* toAppend
-		"mov rdx, rdi \n"			// cube::CharacterStyleWidget* widget
-
-		// Call function
-		PREPARE_STACK
-		"call OnGetFaceText \n"
-		RESTORE_STACK
-
-		DEREF_JMP(ASMOnDrawFace_jmpback)
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMOnDrawFace();
 
 GETTER_VAR(void*, ASMOnDrawGender_jmpback);
-__attribute__((naked)) void ASMOnDrawGender() {
-	asm(".intel_syntax \n"
-		// Set parameters
-		"lea rcx, [rsp + 0x50] \n"	// void* toAppend
-		"mov rdx, rdi \n"			// cube::CharacterStyleWidget* widget
-
-		// Call function
-		PREPARE_STACK
-		"call OnGetGenderText \n"
-		RESTORE_STACK
-
-		DEREF_JMP(ASMOnDrawGender_jmpback)
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMOnDrawGender();
 
 GETTER_VAR(void*, ASMOnGenerateCreature_jmpback);
-__attribute__((naked)) void ASMOnGenerateCreature() {
-	asm(".intel_syntax \n"
-
-		// Save registers
-		PUSH_ALL
-
-		// Set parameters
-		"mov rcx, r12 \n"
-		"mov rdx, r8 \n"
-		"mov r8, rbx \n"
-
-		// Call function
-		PREPARE_STACK
-		"call OnGenerateCreature \n"
-		RESTORE_STACK
-
-		// Restore registers
-		POP_ALL
-
-		DEREF_JMP(ASMOnGenerateCreature_jmpback)
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMOnGenerateCreature();
 
 GETTER_VAR(void*, ASMOnGetRaceName_jmpback);
-__attribute__((naked)) void ASMOnGetRaceName() {
-	asm(".intel_syntax \n"
-
-		// Set parameters
-		"lea rcx, [rsp + 0x50] \n"
-		"mov rdx, rax \n"
-
-		// Call function
-		PREPARE_STACK
-		"call OnGetRaceName \n"
-		RESTORE_STACK
-
-		DEREF_JMP(ASMOnGetRaceName_jmpback)
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMOnGetRaceName();
 
 GETTER_VAR(void*, ASMOnGetRaceName2_jmpback);
-__attribute__((naked)) void ASMOnGetRaceName2() {
-	asm(".intel_syntax \n"
-
-
-		// Set parameters
-		"lea rcx, [rsp + 0x50] \n"
-		"mov rdx, rax \n"
-
-		// Call function
-		PREPARE_STACK
-		"call OnGetRaceName2 \n"
-		RESTORE_STACK
-
-		DEREF_JMP(ASMOnGetRaceName2_jmpback)
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMOnGetRaceName2();
 
 void InitializeOnGenerateCreatureHandler() {
 	WriteFarJMP(CWOffset(0x53FDB), (void*)&ASMOnGenerateCreature);

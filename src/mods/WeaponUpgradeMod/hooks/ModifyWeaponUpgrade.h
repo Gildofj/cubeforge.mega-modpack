@@ -26,44 +26,8 @@ extern "C" void UpgradeWeapon(cube::AdaptionWidget * widget) {
 }
 
 GETTER_VAR(void*, ASMWeaponUpgradePreview_jmpback);
-__attribute__((naked)) void ASMWeaponUpgradePreview() {
-	asm(".intel_syntax \n"
-
-		PUSH_ALL
-		"mov rdx, rbx \n"
-		"lea rcx, [rbp+0x100] \n"
-
-		PREPARE_STACK
-
-		"call SetWeaponPreview \n"
-
-		RESTORE_STACK
-
-		POP_ALL
-
-		DEREF_JMP(ASMWeaponUpgradePreview_jmpback)
-
-		".att_syntax \n"
-	);
-}
-
-__attribute__((naked)) void ASMOnWeaponUpgrade() {
-	asm(".intel_syntax \n"
-
-		PUSH_ALL
-
-		PREPARE_STACK
-
-		"call UpgradeWeapon \n"
-
-		RESTORE_STACK
-
-		POP_ALL
-
-		"retn \n"
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMWeaponUpgradePreview();
+extern "C" void ASMOnWeaponUpgrade();
 
 void SetupWeaponUpgradeModification()
 {

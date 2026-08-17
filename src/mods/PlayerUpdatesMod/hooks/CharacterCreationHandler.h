@@ -24,17 +24,7 @@ extern "C" const wchar_t* GetCubeClassNameWide(int id) {
 }
 
 GETTER_VAR(void*, ASMSetMenuClassName_retn);
-__attribute__((naked)) void ASMSetMenuClassName() {
-	asm(".intel_syntax \n"
-		"sub ecx,01 \n"
-		"push rax \n"
-		"call GetCubeClassNameWide \n"
-		"mov rdx, rax \n"
-		"pop rax \n"
-		DEREF_JMP(ASMSetMenuClassName_retn)
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMSetMenuClassName();
 
 /*
 * GET CLASS NAME CHAR*
@@ -52,29 +42,10 @@ extern "C" const char* GetCubeClassName(int id) {
 }
 
 GETTER_VAR(void*, ASMSetClassName_1_ret);
-__attribute__((naked)) void ASMSetClassName_1() {
-	asm(".intel_syntax \n"
-		"sub ecx,01 \n"
-		"push rax \n"
-		"call GetCubeClassName \n"
-		"mov rdx, rax \n"
-		"pop rax \n"
-		DEREF_JMP(ASMSetClassName_1_ret)
-	);
-}
+extern "C" void ASMSetClassName_1();
 
 GETTER_VAR(void*, ASMSetClassName_2_ret);
-__attribute__((naked)) void ASMSetClassName_2() {
-	asm(".intel_syntax \n"
-		"sub ecx,01 \n"
-		"push rax \n"
-		"call GetCubeClassName \n"
-		"mov rdx, rax \n"
-		"pop rax \n"
-		DEREF_JMP(ASMSetClassName_2_ret)
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMSetClassName_2();
 
 /*
 * CHARACTER WIDGET CLASS ID INCREASE
@@ -89,21 +60,7 @@ extern "C" void OnCharacterWidgetClassButtonIncrease(cube::CharacterStyleWidget 
 }
 
 GETTER_VAR(void*, OverwriteClassIdIncrease_ret);
-__attribute__((naked)) void ASMMenuClassIdIncrease() {
-	asm(".intel_syntax \n"
-		PUSH_ALL
-		"mov rcx, rbx \n"
-		PREPARE_STACK
-		"call OnCharacterWidgetClassButtonIncrease \n"
-		RESTORE_STACK
-		POP_ALL
-		// Old code
-		"xor edx, edx \n"
-		"mov rcx, rbx \n"
-		DEREF_JMP(OverwriteClassIdIncrease_ret)
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMMenuClassIdIncrease();
 
 /*
 * CHARACTER WIDGET CLASS ID DECREASE
@@ -118,21 +75,7 @@ extern "C" void OnCharacterWidgetClassButtonDecrease(cube::CharacterStyleWidget 
 }
 
 GETTER_VAR(void*, OverwriteClassIdDecrease_ret);
-__attribute__((naked)) void ASMMenuClassIdDecrease() {
-	asm(".intel_syntax \n"
-		PUSH_ALL
-		"mov rcx, rbx \n"
-		PREPARE_STACK
-		"call OnCharacterWidgetClassButtonDecrease \n"
-		RESTORE_STACK
-		POP_ALL
-		// Old code
-		"xor edx, edx \n"
-		"mov rcx, rbx \n"
-		DEREF_JMP(OverwriteClassIdDecrease_ret)
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMMenuClassIdDecrease();
 
 /*
 * CHARACTER GENERATE STARTER GEAR
@@ -160,20 +103,7 @@ extern "C" char GenerateStarterGear(cube::Game * game) {
 }
 
 GETTER_VAR(void*, AddCreatureStarterWeapons_ret);
-__attribute__((naked)) void ASMAddCreatureStarterWeapons() {
-	asm(".intel_syntax \n"
-		PUSH_ALL
-		"mov rcx, [rdi + 0x1E8] \n"
-		PREPARE_STACK
-		"call GenerateStarterGear \n"
-		RESTORE_STACK
-		POP_ALL
-		"mov rcx, [rdi + 0x1E8] \n"
-		"mov rcx, [rcx + 0x08] \n"
-		DEREF_JMP(AddCreatureStarterWeapons_ret)
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMAddCreatureStarterWeapons();
 
 void AddMenuClassNames() {
 	char* base = (char*)CWBase();

@@ -68,34 +68,7 @@ extern "C" int GetRegionType(int x, int y) {
 	return REGION_TYPES[biomeIdx][heightIdx];
 }
 
-__attribute__((naked)) void ASMUpdateGetBiomeType() {
-	asm(".intel_syntax \n"
-
-		"push r15 \n"
-
-		PUSH_ALL
-
-		"mov rcx, rdx \n"
-		"mov rdx, r8 \n"
-
-		PREPARE_STACK
-
-		"call GetRegionType \n"
-
-		RESTORE_STACK
-
-		"mov [rsp], rax \n"
-
-		POP_ALL
-
-		"mov rax, r15 \n"
-		"pop r15 \n"
-
-		"ret \n"
-
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMUpdateGetBiomeType();
 
 void WorldGenOverrideIntialize()
 {

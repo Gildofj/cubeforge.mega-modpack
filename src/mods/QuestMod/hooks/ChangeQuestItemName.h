@@ -18,46 +18,7 @@ extern "C" int OnGetItemName(cube::Speech* speech, cube::Item* item, cube::Item*
 
 GETTER_VAR(void*, ASMOnGetItemName_jmpback);
 GETTER_VAR(void*, ASMOnGetItemName_bail);
-__attribute__((naked)) void ASMOnGetItemName() {
-	asm(".intel_syntax \n"
-
-		PUSH_ALL
-
-		"mov rdx, r8 \n"
-		"lea r8, [rbp + 0x1E0] \n"
-
-		PREPARE_STACK
-
-		"call OnGetItemName \n"
-
-		RESTORE_STACK
-
-		"cmp rax, 1 \n"
-		"je 1f \n"
-
-		POP_ALL
-
-		// old code
-		"mov rsi, rdx \n"
-		"mov [rbp + 0x40], rdx \n"
-		"mov rdi, rcx \n"
-		"mov [rbp + 0x160], rcx \n"
-
-		DEREF_JMP(ASMOnGetItemName_jmpback)
-
-		"1: \n"
-		POP_ALL
-		// old code
-		"mov rsi, rdx \n"
-		"mov [rbp + 0x40], rdx \n"
-		"mov rdi, rcx \n"
-		"mov [rbp + 0x160], rcx \n"
-
-		DEREF_JMP(ASMOnGetItemName_bail)
-
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMOnGetItemName();
 
 // Todo: Call for every mod
 void SetupOnGetItemName()

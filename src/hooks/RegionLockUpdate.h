@@ -22,32 +22,7 @@ extern "C" int OnGetEffectiveItemRarity(cube::Item * item, int distance) {
 	return (int)calc;
 }
 
-__attribute__((naked)) void ASMEffectiveItemRarity() {
-	asm(".intel_syntax \n"
-
-		"push r15 \n"
-		PUSH_ALL
-
-		"mov rdx, rax \n"
-		"mov rcx, r9 \n"
-
-		PREPARE_STACK
-
-		"call OnGetEffectiveItemRarity \n"
-
-		RESTORE_STACK
-
-		"mov [rsp], rax \n"
-
-		POP_ALL
-
-		"mov rax, r15 \n"
-		"pop r15 \n"
-
-		"retn \n"
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMEffectiveItemRarity();
 
 void SetupRegionLockUpdates() {
 	WriteFarJMP(CWOffset(0x10976D), (void*)&ASMEffectiveItemRarity);

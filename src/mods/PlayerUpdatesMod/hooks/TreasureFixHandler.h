@@ -29,40 +29,7 @@ extern "C" int GetTreasureDropClass(cube::Creature* player) {
 	return res;
 }
 
-__attribute__((naked)) void ASMTreasureFixHandler() {
-	asm(".intel_syntax \n"
-
-		PUSH_ALL
-
-		"mov rcx, r12 \n"
-
-		PREPARE_STACK
-
-		"call GetTreasureDropClass \n"
-
-		RESTORE_STACK
-
-		"mov [rsp+0x60], rax \n" //setting ecx
-
-		POP_ALL
-
-		// Old code
-		"1: \n"
-		"sub ecx, 1 \n"
-		"jz 1f \n"
-		"sub ecx, 1 \n"
-		"jz 2f \n"
-		DEREF_JMP(ASMTreasureFixHandler_jmpback)
-
-		"1: \n"
-		DEREF_JMP(ASMTreasureFixHandler_ret_1)
-
-		"2: \n"
-		DEREF_JMP(ASMTreasureFixHandler_ret_2)
-
-		".att_syntax \n"
-	);
-}
+extern "C" void ASMTreasureFixHandler();
 
 
 void InitializeTreasureFixHandler() {
