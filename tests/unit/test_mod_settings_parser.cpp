@@ -1,27 +1,34 @@
 #include "../test_framework.h"
-#include "src/CubeMod.h"
-#include "src/cwsdk-extension/helper/FileParser.h"
+#include "BaseMod.h"
 #include <vector>
 
 // Custom mock sub-mods for testing configuration and settings parsing
-class MockExplorationMod : public CubeMod {
+class MockExplorationMod : public BaseMod {
 public:
-    MockExplorationMod() {
-        m_Name = "Mock Sea Exploration Mod";
-        m_FileName = "MockSeaExploration";
-        m_ID = 101;
-        m_Version = { 1, 2, 3 };
+    struct Config {
+        bool autoGold;
+        int divingLevel;
+    } config;
+
+    MockExplorationMod()
+        : BaseMod("Mock Sea Exploration Mod", "MockSeaExploration", 101, { 1, 2, 3 })
+    {
+        config = { true, 5 };
         m_Enabled = true;
     }
 };
 
-class MockCombatMod : public CubeMod {
+class MockCombatMod : public BaseMod {
 public:
-    MockCombatMod() {
-        m_Name = "Mock Combat Update Mod";
-        m_FileName = "MockCombatUpdate";
-        m_ID = 102;
-        m_Version = { 2, 0, 1 };
+    struct Config {
+        bool doubleTap;
+        float dodgeSpeed;
+    } config;
+
+    MockCombatMod()
+        : BaseMod("Mock Combat Update Mod", "MockCombatUpdate", 102, { 2, 0, 1 })
+    {
+        config = { false, 1.5f };
         m_Enabled = false;
     }
 };
@@ -41,7 +48,7 @@ TEST_FUNC(ModSettingsParser, ModVersionFormatting) {
 }
 
 TEST_FUNC(ModSettingsParser, CubeModDefaultsAndState) {
-    CubeMod baseMod;
+    BaseMod baseMod("Standard Mod Class", "BaseMod", 0, { 1, 0, 0 });
     ASSERT_STREQ(baseMod.m_Name.c_str(), "Standard Mod Class");
     ASSERT_EQ(baseMod.m_ID, 0);
     ASSERT_TRUE(baseMod.m_Enabled);
@@ -60,25 +67,21 @@ TEST_FUNC(ModSettingsParser, CubeModDefaultsAndState) {
 
 TEST_FUNC(ModSettingsParser, SaveAndApplySettingsRoundtrip) {
     MockExplorationMod mod1;
-    MockCombatMod mod2;
+    mod1.config.autoGold = false;
+    mod1.config.divingLevel = 10;
 
-    mod1.m_Enabled = false; // Changed from default
-    mod2.m_Enabled = true;  // Changed from default
+    // Save state to binary file
+    mod1.Save(&mod1.config, sizeof(mod1.config));
 
-    std::vector<CubeMod*> modVector = { &mod1, &mod2 };
+    // Reset config to defaults
+    mod1.config.autoGold = true;
+    mod1.config.divingLevel = 1;
 
-    // Save to binary file
-    cube::SaveSettings(&modVector);
+    // Load persisted state back
+    mod1.Load(&mod1.config, sizeof(mod1.config));
 
-    // Reset mod enabled states to defaults to test if ApplySettings restores them
-    mod1.m_Enabled = true;
-    mod2.m_Enabled = false;
-
-    // Apply settings from the persisted file
-    cube::ApplySettings(&modVector);
-
-    ASSERT_FALSE(mod1.m_Enabled);
-    ASSERT_TRUE(mod2.m_Enabled);
+    ASSERT_FALSE(mod1.config.autoGold);
+    ASSERT_EQ(mod1.config.divingLevel, 10);
 }
 
 void RegisterModSettingsParserTests() {

@@ -1,7 +1,7 @@
 #include "../test_framework.h"
-#include "src/cwsdk-extension/quest/Quest.h"
-#include "src/cwsdk-extension/button/DButton.h"
-#include "src/cwsdk-extension/Inventory.h"
+#include "quest_system/Quest.h"
+#include "input/DButton.h"
+#include "inventory/Inventory.h"
 
 TEST_FUNC(QuestAndInventory, QuestTypeAndRarityTargets) {
     cube::Quest q1;

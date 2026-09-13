@@ -1,10 +1,18 @@
 # Feature: Combat Updates (ID: 3)
 
-The **Combat Updates Mod** enhances action-oriented combat mechanics by adding custom resource conversion skills, emergency combo-based healing, and directional dash / dodge maneuvers.
+The **Combat Updates** sub-mod (`cubeforge-combat-updates.dll`) enhances action-oriented combat mechanics by adding custom resource conversion skills, emergency combo-based healing, and directional dash / dodge maneuvers.
 
 ---
 
-## 1. Hotkey Combat Abilities
+## 1. Target & Deployment
+
+- **Standalone Target**: `cubeforge-combat-updates.dll` (`src/mods/combat_updates/`)
+- **ModPack Bundle**: Integrated into `cubeforge-megamod.dll` (`src/modpack/`)
+- **Persistence File**: `Mods/cubeforge-combat-updates.sav` (or `Mods/cubeforge-megamod.sav`)
+
+---
+
+## 2. Hotkey Combat Abilities
 
 | Key Binding | Ability Name | Resource Cost | Effect |
 | :---: | :--- | :--- | :--- |
@@ -13,7 +21,7 @@ The **Combat Updates Mod** enhances action-oriented combat mechanics by adding c
 
 ---
 
-## 2. Directional Dash & Movement Abilities
+## 3. Directional Dash & Movement Abilities
 
 Players can execute quick dashes in all 4 cardinal movement directions:
 
@@ -28,20 +36,35 @@ Players can execute quick dashes in all 4 cardinal movement directions:
 The trigger method can be configured in chat:
 - **Double-Tap Mode** (Default): Double-tap `W`, `A`, `S`, or `D`.
   ```text
-  /enable doubletap
+  /cubeforge combat doubletap 1
   ```
 - **Control Modifier Mode**: Hold `Left Control` + press `W`, `A`, `S`, or `D`.
   ```text
-  /disable doubletap
+  /cubeforge combat doubletap 0
   ```
 
 ---
 
-## 3. Technical Implementation
+## 4. In-Game Commands & Configuration
 
-- **Class**: `CombatUpdateMod` (`src/mods/CombatUpdatesMod/`)
+| Command | Action |
+| :--- | :--- |
+| `/cubeforge mod 3 1` | Enables Combat Updates. |
+| `/cubeforge mod 3 0` | Disables Combat Updates. |
+| `/cubeforge combat doubletap 1` | Enables double-tap dash mode. |
+| `/cubeforge combat doubletap 0` | Disables double-tap dash mode (requires Ctrl modifier). |
+| `/enable doubletap` / `/disable doubletap` | Legacy aliases for double-tap toggling. |
+
+---
+
+## 5. Technical Implementation
+
+- **Class**: [`CombatUpdateMod`](file:///d:/Projects/CubeMegaMod/src/mods/combat_updates/CombatUpdateMod.h) (`src/mods/combat_updates/`)
+- **Lifecycle Base**: [`BaseMod`](file:///d:/Projects/CubeMegaMod/src/core/BaseMod.h)
 - **DirectInput Polling**: `OnGetKeyboardState(BYTE* diKeys)` polls raw keyboard states via `cube::DButton` state machines (`Pressed`, `Held`, `DoubleTap`).
-- **Ability Objects**:
-  - `cube::ConvertMTSAbility` (`src/cwsdk-extension/ability/ConvertMTSAbility.h`)
-  - `cube::HealAbility` (`src/cwsdk-extension/ability/HealAbility.h`)
-  - `cube::FarJumpAbility` (`src/cwsdk-extension/ability/FarJumpAbility.h`)
+- **Core Ability System**:
+  - `cube::ConvertMTSAbility` (`src/core/abilities/ConvertMTSAbility.h`)
+  - `cube::HealAbility` (`src/core/abilities/HealAbility.h`)
+  - `cube::FarJumpAbility` (`src/core/abilities/FarJumpAbility.h`)
+  - `cube::EventList` (`src/core/abilities/EventList.h`)
+

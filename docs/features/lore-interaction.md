@@ -1,10 +1,18 @@
 # Feature: Lore Interactions (ID: 2)
 
-The **Lore Interactions Mod** makes lore discovery rewarding by dropping scaled equipment and rare artifacts whenever the player inspects and increases regional lore, accompanied by randomized atmospheric chat descriptions.
+The **Lore Interactions** sub-mod (`cubeforge-lore-interactions.dll`) makes lore discovery rewarding by dropping scaled equipment and rare artifacts whenever the player inspects and increases regional lore, accompanied by randomized atmospheric chat descriptions.
 
 ---
 
-## 1. Reward Scaling Tiers
+## 1. Target & Deployment
+
+- **Standalone Target**: `cubeforge-lore-interactions.dll` (`src/mods/lore_interactions/`)
+- **ModPack Bundle**: Integrated into `cubeforge-megamod.dll` (`src/modpack/`)
+- **Persistence File**: `Mods/cubeforge-lore-interactions.sav` (or `Mods/cubeforge-megamod.sav`)
+
+---
+
+## 2. Reward Scaling Tiers
 
 When inspecting lore objects (e.g. ancient ruins, inscriptions), a random roll `[0..99]` determines whether an item drops based on the player's current lore percentage:
 
@@ -16,7 +24,7 @@ When inspecting lore objects (e.g. ancient ruins, inscriptions), a random roll `
 
 ---
 
-## 2. Dynamic Discovery Flavor Messages
+## 3. Dynamic Discovery Flavor Messages
 
 Whenever an item drops from a lore interaction, the mod formats a rich atmospheric sentence printed in orange chat text (`RGB: 255, 165, 0`):
 
@@ -24,8 +32,20 @@ Whenever an item drops from a lore interaction, the mod formats a rich atmospher
 
 ---
 
-## 3. Technical Implementation
+## 4. In-Game Commands & Configuration
 
-- **Class**: `LoreInteractionMod` (`src/mods/LoreInteractionMod/`)
-- **Hook**: `lore_increase.h` (`src/hooks/lore_increase.h`) intercepts lore counter increments at base offset `0x103A89` and queues a `HookEvent::LoreInteraction` event.
+| Command | Action |
+| :--- | :--- |
+| `/cubeforge mod 2 1` | Enables Lore Interactions. |
+| `/cubeforge mod 2 0` | Disables Lore Interactions. |
+| `/mod 2 1` / `/mod 2 0` | Legacy alias for toggling Lore Interactions. |
+
+---
+
+## 5. Technical Implementation
+
+- **Class**: [`LoreInteractionMod`](file:///d:/Projects/CubeMegaMod/src/mods/lore_interactions/LoreInteractionMod.h) (`src/mods/lore_interactions/`)
+- **Lifecycle Base**: [`BaseMod`](file:///d:/Projects/CubeMegaMod/src/core/BaseMod.h)
+- **Assembly Hook**: Hooks lore counter increments at base offset `0x103A89` via native MASM detour (`asm/hooks_lore_interactions.asm`).
 - **Dispatch**: `LoreInteractionMod::OnLoreIncrease(cube::Game* game, int value)` processes the chance calculation and calls `cube::Helper::DropItem()`.
+

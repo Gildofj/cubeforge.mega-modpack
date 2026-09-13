@@ -12,7 +12,7 @@ $BuildDir = Join-Path $RootDir "build"
 $DistDir = Join-Path $RootDir "dist"
 
 Write-Host "=====================================================" -ForegroundColor Cyan
-Write-Host " [CubeMegaMod] Build Automation" -ForegroundColor Cyan
+Write-Host " [cubeforge.mega-modpack] Build Automation" -ForegroundColor Cyan
 Write-Host "=====================================================" -ForegroundColor Cyan
 
 if ($Clean) {
@@ -37,9 +37,11 @@ if (-not (Test-Path $DistDir)) {
     New-Item -ItemType Directory -Force -Path $DistDir | Out-Null
 }
 
-$DllSource = Join-Path $BuildDir "$Config\*.dll"
-Copy-Item -Force $DllSource $DistDir
-Write-Host "Mod DLL copiada para: $DistDir" -ForegroundColor Green
+$ModsDist = Join-Path $DistDir "Mods"
+if (Test-Path $ModsDist) {
+    $ModCount = (Get-ChildItem -Path $ModsDist -Filter "*.dll").Count
+    Write-Host "Total de $ModCount DLLs geradas em: $ModsDist" -ForegroundColor Green
+}
 
 if ($Test) {
     Write-Host "Executando testes unitarios..." -ForegroundColor Cyan

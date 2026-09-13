@@ -1,10 +1,18 @@
 # Feature: Shop Updates (ID: 5)
 
-The **Shop Updates Mod** enriches town economies by adding rare commodities, artifact purchases, movement utility items, and classic Spirit Cubes to vendor inventories.
+The **Shop Updates** sub-mod (`cubeforge-shop-updates.dll`) enriches town economies by adding rare commodities, artifact purchases, movement utility items, and classic Spirit Cubes to vendor inventories.
 
 ---
 
-## 1. Vendor Inventories
+## 1. Target & Deployment
+
+- **Standalone Target**: `cubeforge-shop-updates.dll` (`src/mods/shop_updates/`)
+- **ModPack Bundle**: Integrated into `cubeforge-megamod.dll` (`src/modpack/`)
+- **Persistence File**: `Mods/cubeforge-shop-updates.sav` (or `Mods/cubeforge-megamod.sav`)
+
+---
+
+## 2. Vendor Inventories
 
 ### 💎 Gem Trader Shop
 The Gem Trader vendor has been restructured to offer high-value progression items:
@@ -28,15 +36,29 @@ The Item Vendor provides specialized exploration and upgrading equipment:
 
 ---
 
-## 2. Dynamic Price Handler
+## 3. Dynamic Price Handler
 
-Item buy/sell prices are dynamically patched to ensure fair economies:
-- Custom spirit cubes and special items resolve through `SetupItemPriceHandler` (`src/hooks/ItemPriceHandler.h`).
+Item buy/sell prices are dynamically handled to ensure fair economies:
+- Custom spirit cubes and special items resolve through price hooks that accurately compute vendor values and sellback rates.
 
 ---
 
-## 3. Technical Implementation
+## 4. In-Game Commands & Configuration
 
-- **Class**: `ShopUpdateMod` (`src/mods/ShopUpdateMod/`)
-- **Hook**: `SetupShopInteractionHandler` (`src/hooks/ShopInteractionHandler.h`) intercepts shop window generation at offset `0x94635` / `0x959E0`.
+| Command | Action |
+| :--- | :--- |
+| `/cubeforge mod 5 1` | Enables Shop Updates. |
+| `/cubeforge mod 5 0` | Disables Shop Updates. |
+| `/mod 5 1` / `/mod 5 0` | Legacy alias for toggling Shop Updates. |
+
+---
+
+## 5. Technical Implementation
+
+- **Class**: [`ShopUpdateMod`](file:///d:/Projects/CubeMegaMod/src/mods/shop_updates/ShopUpdateMod.h) (`src/mods/shop_updates/`)
+- **Lifecycle Base**: [`BaseMod`](file:///d:/Projects/CubeMegaMod/src/core/BaseMod.h)
+- **Native MASM Detours & Hooks** (`src/mods/shop_updates/asm/hooks_shop_updates.asm`):
+  - Intercepts shop window generation at offset `0x94635` / `0x959E0`
+  - Item buy/sell price evaluation hooks
 - **Item Injections**: Modifies the `itemVector` in `OnShopInteraction` and tracks sold items via `cube::Helper::CWGetItemsSold()` to prevent infinite purchase exploits.
+

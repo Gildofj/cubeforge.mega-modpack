@@ -1,10 +1,18 @@
 # Feature: World Generation Updates (ID: 6)
 
-The **World Generation Mod** enhances terrain variety and character starting experiences by un-restricting spawn biomes and introducing macro-scale island distributions using Simplex Noise.
+The **World Generation** sub-mod (`cubeforge-world-gen.dll`) enhances terrain variety and character starting experiences by un-restricting spawn biomes and introducing macro-scale island distributions using Simplex Noise.
 
 ---
 
-## 1. Features & Changes
+## 1. Target & Deployment
+
+- **Standalone Target**: `cubeforge-world-gen.dll` (`src/mods/world_gen/`)
+- **ModPack Bundle**: Integrated into `cubeforge-megamod.dll` (`src/modpack/`)
+- **Persistence File**: `Mods/cubeforge-world-gen.sav` (or `Mods/cubeforge-megamod.sav`)
+
+---
+
+## 2. Features & Changes
 
 ### 🌍 Un-restricted Spawn Regions
 - In vanilla Cube World, newly created characters are restricted to standard temperate starting lands.
@@ -15,14 +23,26 @@ The **World Generation Mod** enhances terrain variety and character starting exp
 - Preserves full backward-compatibility with existing save files while generating richer unexplored terrain.
 
 ### 🏛️ Building & Structure Overrides
-- Custom structure distribution rules hooked via `BuildingTypeOverwrite.h` ensuring balanced village and ruin placements.
+- Custom structure distribution rules hooked via native detours ensuring balanced village and ruin placements.
 
 ---
 
-## 2. Technical Implementation
+## 3. In-Game Commands & Configuration
 
-- **Class**: `WorldGenMod` (`src/mods/WorldGenMod/`)
-- **Noise Generator**: `src/mods/WorldGenMod/Noise/SimplexNoise.cpp`
-- **Hooks**:
-  - `BiomeTypeOverwrite.h` intercepts zone biome calculations via ASM detour at offset `0x265F06`.
-  - `BuildingTypeOverwrite.h` hooks structure placement logic.
+| Command | Action |
+| :--- | :--- |
+| `/cubeforge mod 6 1` | Enables World Generation enhancements. |
+| `/cubeforge mod 6 0` | Disables World Generation enhancements. |
+| `/mod 6 1` / `/mod 6 0` | Legacy alias for toggling World Generation. |
+
+---
+
+## 4. Technical Implementation
+
+- **Class**: [`WorldGenMod`](file:///d:/Projects/CubeMegaMod/src/mods/world_gen/WorldGenMod.h) (`src/mods/world_gen/`)
+- **Lifecycle Base**: [`BaseMod`](file:///d:/Projects/CubeMegaMod/src/core/BaseMod.h)
+- **Noise Generator**: `src/mods/world_gen/SimplexNoise.cpp`
+- **Native MASM Detours** (`src/mods/world_gen/asm/hooks_world_gen.asm`):
+  - Intercepts zone biome calculations via ASM detour at offset `0x265F06`
+  - Overrides structure placement and building type logic
+

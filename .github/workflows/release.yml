@@ -1,0 +1,81 @@
+name: Release Packaging and Publication
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & Publish Release Artifacts
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup MSVC toolchain
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Configure CMake
+        run: >
+          cmake -B build
+          -G "Visual Studio 17 2022"
+          -A x64
+          -DCMAKE_BUILD_TYPE=Release
+          -DBUILD_TESTING=ON
+
+      - name: Build All Targets
+        run: cmake --build build --config Release --parallel
+
+      - name: Run Tests
+        run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: Package Standalone Mods & ModPack
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts
+          
+          # Zip each individual mod DLL
+          $mods = @(
+            "cubeforge-sea-exploration",
+            "cubeforge-lore-interactions",
+            "cubeforge-combat-updates",
+            "cubeforge-creature-updates",
+            "cubeforge-shop-updates",
+            "cubeforge-world-gen",
+            "cubeforge-beginner-mode",
+            "cubeforge-region-lock",
+            "cubeforge-weapon-upgrades",
+            "cubeforge-quest-system",
+            "cubeforge-player-updates",
+            "cubeforge-stack-updates",
+            "cubeforge-megamod"
+          )
+
+          foreach ($mod in $mods) {
+            $dllPath = "dist/Mods/$mod.dll"
+            if (Test-Path $dllPath) {
+              Compress-Archive -Path $dllPath -DestinationPath "artifacts/$mod.zip" -Force
+              Write-Host "Packaged $mod.zip"
+            } else {
+              Write-Warning "Missing binary: $dllPath"
+            }
+          }
+
+          # Complete Bundle containing all standalone DLLs
+          Compress-Archive -Path "dist/Mods/*.dll" -DestinationPath "artifacts/cubeforge-all-mods-bundle.zip" -Force
+          Write-Host "Packaged cubeforge-all-mods-bundle.zip"
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false

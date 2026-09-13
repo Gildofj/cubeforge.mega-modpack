@@ -1,5 +1,5 @@
 #include "../test_framework.h"
-#include "src/mods/WorldGenMod/Noise/SimplexNoise.h"
+#include "world_gen/SimplexNoise.h"
 #include <cmath>
 
 TEST_FUNC(SimplexNoiseSuite, Noise1DBoundsAndDeterminism) {

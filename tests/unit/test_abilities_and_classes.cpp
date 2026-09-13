@@ -1,6 +1,8 @@
 #include "../test_framework.h"
-#include "src/mods/PlayerUpdatesMod/CharacterClass.h"
-#include "src/mods/PlayerUpdatesMod/classes/MonkClass.h"
+#include "player_updates/CharacterClass.h"
+#include "player_updates/classes/MonkClass.h"
+#include <vector>
+#include <cstdint>
 
 TEST_FUNC(AbilitiesAndClasses, CharacterClassEnumsAndNames) {
     ASSERT_EQ(CharacterClass::PassiveManaLoss, 0);
@@ -19,52 +21,52 @@ TEST_FUNC(AbilitiesAndClasses, CharacterClassEnumsAndNames) {
 
 TEST_FUNC(AbilitiesAndClasses, MonkClassSpecialization0Abilities) {
     MonkClass monk;
-    cube::Creature mockPlayer;
-    memset(&mockPlayer.entity_data, 0, sizeof(mockPlayer.entity_data));
+    std::vector<uint8_t> creatureBuffer(sizeof(cube::Creature), 0);
+    cube::Creature* mockPlayer = reinterpret_cast<cube::Creature*>(creatureBuffer.data());
 
     // Specialization 0 (Default)
-    mockPlayer.entity_data.specialization = 0;
+    mockPlayer->entity_data.specialization = 0;
 
-    int ultId = monk.GetUltimateAbilityId(&mockPlayer);
+    int ultId = monk.GetUltimateAbilityId(mockPlayer);
     ASSERT_EQ(ultId, CharacterClass::Ability::FullHeal);
 
-    int ultCooldown = monk.GetUltimateAbilityCooldown(&mockPlayer, ultId);
+    int ultCooldown = monk.GetUltimateAbilityCooldown(mockPlayer, ultId);
     ASSERT_EQ(ultCooldown, 20000);
 
-    int shiftId = monk.GetShiftAbilityId(&mockPlayer);
+    int shiftId = monk.GetShiftAbilityId(mockPlayer);
     ASSERT_EQ(shiftId, 146);
 
     // Middle mouse without stamina
-    mockPlayer.stamina = 0.2f;
-    int mmIdNoStamina = monk.GetMiddleMouseAbilityId(&mockPlayer);
+    mockPlayer->stamina = 0.2f;
+    int mmIdNoStamina = monk.GetMiddleMouseAbilityId(mockPlayer);
     ASSERT_EQ(mmIdNoStamina, 0);
 
     // Middle mouse with stamina >= 0.5
-    mockPlayer.stamina = 0.8f;
-    int mmIdWithStamina = monk.GetMiddleMouseAbilityId(&mockPlayer);
+    mockPlayer->stamina = 0.8f;
+    int mmIdWithStamina = monk.GetMiddleMouseAbilityId(mockPlayer);
     ASSERT_EQ(mmIdWithStamina, 50);
 }
 
 TEST_FUNC(AbilitiesAndClasses, MonkClassSpecialization1Abilities) {
     MonkClass monk;
-    cube::Creature mockPlayer;
-    memset(&mockPlayer.entity_data, 0, sizeof(mockPlayer.entity_data));
+    std::vector<uint8_t> creatureBuffer(sizeof(cube::Creature), 0);
+    cube::Creature* mockPlayer = reinterpret_cast<cube::Creature*>(creatureBuffer.data());
 
     // Specialization 1
-    mockPlayer.entity_data.specialization = 1;
-    mockPlayer.entity_data.current_ability = 0;
-    mockPlayer.entity_data.time_since_ability = 500.0f; // Above 250 threshold
+    mockPlayer->entity_data.specialization = 1;
+    mockPlayer->entity_data.current_ability = 0;
+    mockPlayer->entity_data.time_since_ability = 500.0f; // Above 250 threshold
 
-    int ultId = monk.GetUltimateAbilityId(&mockPlayer);
+    int ultId = monk.GetUltimateAbilityId(mockPlayer);
     ASSERT_EQ(ultId, CharacterClass::Ability::PuddleHeal);
 
-    int ultCooldown = monk.GetUltimateAbilityCooldown(&mockPlayer, ultId);
+    int ultCooldown = monk.GetUltimateAbilityCooldown(mockPlayer, ultId);
     ASSERT_EQ(ultCooldown, 30000);
 
-    int shiftId = monk.GetShiftAbilityId(&mockPlayer);
+    int shiftId = monk.GetShiftAbilityId(mockPlayer);
     ASSERT_EQ(shiftId, CharacterClass::Ability::PuddleLava);
 
-    int mmId = monk.GetMiddleMouseAbilityId(&mockPlayer);
+    int mmId = monk.GetMiddleMouseAbilityId(mockPlayer);
     ASSERT_EQ(mmId, CharacterClass::Ability::PuddlePoison);
 }
 
@@ -90,14 +92,14 @@ TEST_FUNC(AbilitiesAndClasses, MonkClassEquipmentRules) {
 
 TEST_FUNC(AbilitiesAndClasses, MonkClassManaGenerationStrategy) {
     MonkClass monk;
-    cube::Creature mockPlayer;
-    memset(&mockPlayer.entity_data, 0, sizeof(mockPlayer.entity_data));
+    std::vector<uint8_t> creatureBuffer(sizeof(cube::Creature), 0);
+    cube::Creature* mockPlayer = reinterpret_cast<cube::Creature*>(creatureBuffer.data());
 
-    mockPlayer.entity_data.specialization = 0;
-    ASSERT_EQ(monk.ManaGenerationType(&mockPlayer), CharacterClass::PassiveManaGain);
+    mockPlayer->entity_data.specialization = 0;
+    ASSERT_EQ(monk.ManaGenerationType(mockPlayer), CharacterClass::PassiveManaGain);
 
-    mockPlayer.entity_data.specialization = 1;
-    ASSERT_EQ(monk.ManaGenerationType(&mockPlayer), CharacterClass::PassiveManaGain);
+    mockPlayer->entity_data.specialization = 1;
+    ASSERT_EQ(monk.ManaGenerationType(mockPlayer), CharacterClass::PassiveManaGain);
 }
 
 void RegisterAbilitiesAndClassesTests() {

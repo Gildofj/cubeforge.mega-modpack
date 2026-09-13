@@ -1,97 +1,42 @@
-# Building CubeMegaMod from Source
+# Building cubeforge.mega-modpack from Source
 
-This guide covers how to set up the toolchain and compile **CubeMegaMod** into a standalone x64 dynamic link library (`.dll`).
+This guide covers how to set up the toolchain and compile **cubeforge.mega-modpack** into 12 standalone sub-mod DLLs and the aggregated bundle DLL.
 
 ---
 
 ## 1. Prerequisites & Toolchain
 
-Cube World mods use custom calling conventions and naked assembly routines, requiring the LLVM/Clang compiler targeting MSVC x64.
-
-1. **Visual Studio 2019 / 2022**:
+1. **Visual Studio 2022** (v143 toolset):
    - Workload: **Desktop development with C++**
-   - Optional Components:
-     - `C++ Clang Compiler for Windows` (LLVM toolset)
+   - Components:
+     - `MSVC v143 - VS 2022 C++ x64/x86 build tools`
      - `C++ CMake tools for Windows`
      - `Windows 10/11 SDK`
-2. **Git** (with submodule support)
-3. **Python 3.x** (optional, for running CMake helper scripts)
+2. **Git**
+3. **CMake 3.25+**
 
 ---
 
 ## 2. Cloning the Repository
 
-Make sure to clone recursively to pull `cwmods` (Cube World SDK):
-
 ```bash
-git clone --recurse-submodules https://github.com/Nichiren/CubeMegaMod.git
-cd CubeMegaMod
-```
-
-If you already cloned without submodules:
-```bash
-git submodule update --init --recursive
+git clone https://github.com/Gildofj/cubeforge.mega-modpack.git
+cd cubeforge.mega-modpack
 ```
 
 ---
 
----
+## 3. Building via CMake (Command Line)
 
-## 3. Quick Automated Build (1-Command)
-
-Você pode compilar o mod inteiro com apenas **um comando** a partir da raiz do repositório:
-
-### Opção A: Usando `make` (Recomendado)
-```bash
-# Compila a DLL e copia automaticamente para a pasta dist/
-make
-
-# Executa todos os testes unitários
-make test
-
-# Limpa os diretórios de build e dist
-make clean
-```
-
-### Opção B: Usando o Script PowerShell / Batch
 ```powershell
-# No PowerShell ou Prompt de Comando
-.\build.bat
-
-# Ou com testes automatizados:
-.\build.bat -Test
-
-# Limpeza completa:
-.\build.bat -Clean
-```
-
----
-
-## 4. Building with Visual Studio
-
-1. Open **Visual Studio 2019 / 2022**.
-2. Select **Open a local folder** and choose the `CubeMegaMod` root directory.
-3. In the configuration dropdown, select **`x64-Clang-Release`** (or `x64-Release`).
-4. Click **Build -> Build All** (or press `Ctrl + Shift + B`).
-
----
-
-## 5. Manual Build via Command Line (CMake)
-
-```bash
+# Configure CMake for x64
 cmake -B build -A x64
-cmake --build build --config Release
+
+# Build all 13 DLL targets and the test executable
+cmake --build build --config Release --parallel
+
+# Run CTest verification suite
+ctest --test-dir build -C Release --output-on-failure
 ```
 
----
-
-## 5. Updating CMake File Lists
-
-If you add new `.cpp` or `.h` files to `src/`:
-You can automatically refresh `CMakeLists.txt` using the included Python generator script:
-
-```bash
-python GenerateProjectCMake.py
-```
-
-This scans `src/` and updates the `add_library` entry in `CMakeLists.txt`.
+All 13 output DLLs (`cubeforge-<nome>.dll` and `cubeforge-megamod.dll`) will be generated inside `dist/Mods/`.

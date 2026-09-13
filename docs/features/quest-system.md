@@ -1,10 +1,18 @@
 # Feature: Quest System (ID: 10)
 
-The **Quest Mod** introduces procedural, dynamic quests given by town and roaming NPCs, complete with kill tracking, inventory-based quest scrolls, and automatic completion rewards.
+The **Quest System** sub-mod (`cubeforge-quest-system.dll`) introduces procedural, dynamic quests given by town and roaming NPCs, complete with kill tracking, inventory-based quest scrolls, and automatic completion rewards.
 
 ---
 
-## 1. Mechanics & Quest Acquisition
+## 1. Target & Deployment
+
+- **Standalone Target**: `cubeforge-quest-system.dll` (`src/mods/quest_system/`)
+- **ModPack Bundle**: Integrated into `cubeforge-megamod.dll` (`src/modpack/`)
+- **Persistence File**: `Mods/cubeforge-quest-system.sav` (or `Mods/cubeforge-megamod.sav`)
+
+---
+
+## 2. Mechanics & Quest Acquisition
 
 - **Trigger**: Talking to eligible NPCs (NPCs whose ID passes the `creature->id % 5 == 0` check).
 - **Quest Item Drop**: The NPC drops a Quest Scroll item into the world, which is stored in the player's **Ingredients** inventory tab.
@@ -21,7 +29,7 @@ The procedural quest generator can target over 30 distinct mob species:
 
 ---
 
-## 2. Tracking & Completion Lifecycle
+## 3. Tracking & Completion Lifecycle
 
 1. **Kill Interception**: When a player (or their pet) kills a creature, `OnCreatureDeath` inspects all active quest scrolls in the player's Ingredients tab.
 2. **Progress Increment**: If the killed creature's race matches the quest target, `quest->IncreaseProgress()` advances the counter.
@@ -29,11 +37,23 @@ The procedural quest generator can target over 30 distinct mob species:
 
 ---
 
-## 3. Technical Implementation
+## 4. In-Game Commands & Configuration
 
-- **Class**: `QuestMod` (`src/mods/QuestMod/`)
+| Command | Action |
+| :--- | :--- |
+| `/cubeforge mod 10 1` | Enables Quest System. |
+| `/cubeforge mod 10 0` | Disables Quest System. |
+| `/mod 10 1` / `/mod 10 0` | Legacy alias for toggling Quest System. |
+
+---
+
+## 5. Technical Implementation
+
+- **Class**: [`QuestMod`](file:///d:/Projects/CubeMegaMod/src/mods/quest_system/QuestMod.h) (`src/mods/quest_system/`)
+- **Lifecycle Base**: [`BaseMod`](file:///d:/Projects/CubeMegaMod/src/core/BaseMod.h)
 - **Speech Map Injections**: Registers custom speech string identifiers (`QuestKill`, `QuestGather`, `QuestDeliver`, `QuestTalk`) at offset indices `15..18`.
-- **String Patches**: Replaces `"Formula: "` with `"[Quest]: "` in memory via `MemoryHelper::FindAndReplaceString`.
-- **Hooks**:
-  - `ChangeQuestItemName.h` & `ChangeQuestDescription.h` format custom names and objectives dynamically.
-  - `CreatureDeathHandler.h` captures all deaths across the global creature vector.
+- **String Patches**: Replaces `"Formula: "` with `"[Quest]: "` in memory via `cubeforge::memory::MemoryHelper::FindAndReplaceString`.
+- **Native MASM Detours & Hooks** (`src/mods/quest_system/asm/hooks_quest_system.asm`):
+  - Dynamic quest scroll name and description formatting
+  - Creature death listener capturing all mob defeats across the world
+

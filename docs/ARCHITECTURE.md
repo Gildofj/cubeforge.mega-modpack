@@ -1,6 +1,6 @@
-# Architecture & Technical Design
+# Architecture & Technical Design: cubeforge.mega-modpack
 
-CubeMegaMod is a modular C++ mod for the Steam release of **Cube World**, built on top of the **Cube World SDK (CWSDK)**. It injects into the `cubeworld.exe` process as a native x64 dynamic link library (`DLL`) and patches runtime game memory, redirects control flow via assembly detours, and exposes an extensible object-oriented modding framework.
+**cubeforge.mega-modpack** is a modular C++ mod ecosystem for the Steam release of **Cube World**, built natively on top of the **CubeForge SDK (`cubeforge.sdk`)** and fully compatible with **`cubeforge.loader`**. It can be deployed as 12 individual standalone DLLs (`cubeforge-<nome>.dll`) or as a unified modpack (`cubeforge-megamod.dll`).
 
 ---
 
@@ -8,20 +8,23 @@ CubeMegaMod is a modular C++ mod for the Steam release of **Cube World**, built 
 
 ```mermaid
 flowchart TD
-    CW[Cube World Steam Client] -->|Loads DLL| ML[Cube World Mod Loader]
-    ML -->|Calls MakeMod| MainMod[CubeMegaMod Entry Point]
-    MainMod --> ModManager[Modular Mod Manager]
+    CW[Cube World Steam Client] -->|Loads DLL| Loader[cubeforge.loader / ModLoader]
+    Loader -->|Calls MakeMod| TargetDLL[cubeforge-*.dll / cubeforge-megamod.dll]
+    TargetDLL --> BaseFramework[cubeforge-core Framework]
     
-    subgraph Core Framework
-        ModManager -->|Registers & Dispatches| ModList[g_Mods Vector]
-        ModList --> SubMods[12 Modular Feature Mods]
-        MemHelper[Memory Helper / Patching] --> CW
-        CWSDKExt[CWSDK Extensions & Helpers] --> SubMods
+    subgraph Core Framework (cubeforge-core)
+        BaseFramework --> BaseMod[BaseMod Lifecycle & Persistence]
+        BaseFramework --> CmdHandler[Unified /cubeforge Command Router]
+        BaseFramework --> MemHelper[MemoryHelper Detours & FarJMP]
+        BaseFramework --> SDKExt[Creature, Input, Inventory, Abilities]
     end
     
-    subgraph Detour & Hooking Layer
-        MainMod --> Hooks[Naked ASM Detours]
-        Hooks -->|Intercepts Events| ModManager
+    subgraph Sub-Mods Layer
+        TargetDLL --> SubMods[12 Modular Standalone Sub-Mods]
+    end
+    
+    subgraph Hooking & Detour Layer
+        MemHelper -->|MASM x64 Detours| CW
     end
 ```
 
@@ -29,83 +32,64 @@ flowchart TD
 
 ## 2. Core Components
 
-### 2.1 Mod Lifecycle & Dispatcher (`main.cpp` & `src/CubeMod.h`)
-- **`GenericMod` Interface**: CubeMegaMod inherits from CWSDK's `GenericMod` and exports `MakeMod()`.
-- **`CubeMod` Base Class**: All 12 internal feature modules inherit from `CubeMod`. Each sub-mod contains:
+### 2.1 Mod Lifecycle & Dispatcher (`src/core/BaseMod.h` / `.cpp`)
+- **`GenericMod` Interface**: Inherits from CWSDK's `GenericMod` and exports `MakeMod()`.
+- **`BaseMod` Base Class**: All 12 modular sub-mods inherit from `BaseMod`. Each sub-mod provides:
   - Unique identifier (`m_ID`)
   - Semantic versioning (`m_Version`)
-  - Enable/Disable state toggle (`m_Enabled`)
-  - State serialization routines (`Save()`, `Load()`) saving binary state to `Save/<FileName>.sav`
-  - Event listener callbacks (`OnGameTick`, `OnChat`, `OnChestInteraction`, `OnLoreIncrease`, `OnCreatureDeath`, `OnShopInteraction`, etc.)
+  - Enable/Disable toggle (`m_Enabled`)
+  - Binary state persistence routines (`Save()`, `Load()`) writing to `Mods/<FileName>.sav`
+  - Lifecycle and event callbacks (`OnGameTick`, `OnChat`, `OnChestInteraction`, `OnLoreIncrease`, `OnCreatureDeath`, `OnShopInteraction`, etc.)
 
-### 2.2 Memory Patching & Assembly Detours (`src/memory_helper/`, `src/hooks/`)
-CubeMegaMod uses several techniques to hook into Cube World's proprietary engine:
+### 2.2 Memory Patching & Assembly Detours (`src/core/memory/`, `src/mods/*/asm/`)
+The system uses modular assembly detours and runtime memory patching:
 1. **Direct Memory Modification (`MemoryHelper::PatchMemory`, `WriteByte`)**:
-   - Changes opcode instructions (e.g. replacing conditional jumps `jnz (0x75)` with unconditional jumps `jmp (0xEB)` or `nop (0x90)`).
-   - Dynamically updates memory protection flags using Windows `VirtualProtect`.
-2. **Far Jumps (`WriteFarJMP`)**:
-   - Replaces original function prologues or key branch points with 14-byte absolute jumps to custom naked assembly routines (`__attribute__((naked)) void ASM...()`).
-3. **Naked ASM Detours**:
+   - Modifies opcodes dynamically with memory protection handling via Windows `VirtualProtect`.
+2. **Far Jumps (`MemoryHelper::WriteFarJMP`)**:
+   - Hooks game function entries with 14-byte absolute jumps to custom MASM x64 routines.
+3. **MASM x64 Detours**:
    - Preserves CPU register state with `PUSH_ALL` / `POP_ALL`.
-   - Re-aligns the stack using `PREPARE_STACK` and `RESTORE_STACK`.
-   - Transfers control to C++ event handlers and returns to the game loop via `DEREF_JMP`.
-
-```mermaid
-sequenceDiagram
-    participant Game as cubeworld.exe
-    participant Hook as ASM Hook (Naked Detour)
-    participant CppHandler as C++ Handler (ChestInteractionHandler)
-    participant Mod as Sub-Mod (SeaExplorationMod)
-
-    Game->>Hook: Far Jump trigger at 0x99288
-    Hook->>Hook: PUSH_ALL & PREPARE_STACK
-    Hook->>CppHandler: Call OnChestInteraction(game, creature)
-    CppHandler->>Mod: Dispatch to active mods (ID 1)
-    Mod-->>CppHandler: Execute custom drop logic & return 1
-    CppHandler-->>Hook: Return
-    Hook->>Hook: RESTORE_STACK & POP_ALL
-    Hook->>Game: JMP back to game loop (0x988C1)
-```
+   - Stack alignment using `PREPARE_STACK` and `RESTORE_STACK`.
+   - Transfers control to C++ event handlers and returns to the game loop.
 
 ---
 
-## 3. CWSDK Extension Layer (`src/cwsdk-extension/`)
-
-The extension layer enriches the raw CWSDK with high-level game logic abstractions:
+## 3. Core Framework Sub-systems (`src/core/`)
 
 | Sub-system | Path | Description |
 | :--- | :--- | :--- |
-| **Abilities** | `src/cwsdk-extension/ability/` | Encapsulates combat skills (`HealAbility`, `ConvertMTSAbility`, `FarJumpAbility`). |
-| **Input** | `src/cwsdk-extension/button/` | `DButton` class tracking DirectInput keyboard states (`Pressed`, `Held`, `DoubleTap`, `None`). |
-| **Creatures** | `src/cwsdk-extension/creature/` | `CreatureFactory` for runtime entity spawning and customization. |
-| **Events** | `src/cwsdk-extension/events/` | Asynchronous event loop (`EventList`, `AddGoldEvent`, `DivingEvent`). |
-| **Quests** | `src/cwsdk-extension/quest/` | Dynamic quest objects represented inside player inventory structures. |
-| **Helpers** | `src/cwsdk-extension/helper/` | Math/random utilities, item generation, inventory inspection, and GUI state checkers. |
+| **Abilities** | `src/core/abilities/` | Combat skills (`HealAbility`, `ConvertMTSAbility`, `FarJumpAbility`, `EventList`). |
+| **Input** | `src/core/input/` | `DButton` class tracking DirectInput keyboard states (`Pressed`, `Held`, `DoubleTap`). |
+| **Creatures** | `src/core/creature/` | `CreatureFactory` for runtime spawning, bosses, chests, and creatures. |
+| **Inventory** | `src/core/inventory/` | Item manipulation, timer abstraction, and inventory structures. |
+| **Memory** | `src/core/memory/` | `MemoryHelper` with `MemoryProtectGuard` RAII protection and FarJMP patching. |
+| **Utils** | `src/core/utils/` | `GameHelper` world collision, drops, and RNG utilities. |
 
 ---
 
 ## 4. Module Registry & Sub-Mod Matrix
 
-| ID | Module Name | Class Name | Primary Responsibility |
-| :---: | :--- | :--- | :--- |
-| **1** | Sea Exploration | `SeaExplorationMod` | Diving oxygen stamina loop, custom underwater chests, underwater boss spawns. |
-| **2** | Lore Interactions | `LoreInteractionMod` | Progressive reward drops & flavor text upon discovering lore. |
-| **3** | Combat Updates | `CombatUpdateMod` | Key-bindable combat abilities, mana/stamina converter, double-tap dashes. |
-| **4** | Creature Updates | `CreatureUpdatesMod` | Pet stat buff multipliers, hostile boomerang/mage damage nerfs, starter gold. |
-| **5** | Shop Updates | `ShopUpdateMod` | Gem Trader & Item Vendor inventory injections, Spirit Cubes, dynamic pricing. |
-| **6** | World Generation | `WorldGenMod` | Non-restricted spawn biomes, Simplex noise macro-islands, building overrides. |
-| **7** | Beginner Mode | `BeginnerModeMod` | Dynamic stat reduction for hostile mobs during player levels 1–5. |
-| **8** | Region Lock Update | `RegionLockUpdateMod` | Softens region lock decay formula based on distance and `+` item modifier. |
-| **9** | Weapon Upgrades | `WeaponUpgradeMod` | Revives alpha Smithy adaptation and item tier upgrade mechanics. |
-| **10** | Quest System | `QuestMod` | Procedural kill quests from NPCs, kill tracking, and automated completion. |
-| **11** | Player Updates | `PlayerUpdatesMod` | Custom class system (`MonkClass`), abilities, specs, custom race appearances. |
-| **12** | Stack Updates | `StackUpdatesMod` | Binary patch expanding item stack limit to 100 across all categories. |
+| ID | Module Name | Standalone DLL | Class Name | Responsibility |
+| :---: | :--- | :--- | :--- | :--- |
+| **1** | Sea Exploration | `cubeforge-sea-exploration.dll` | `SeaExplorationMod` | Diving oxygen stamina loop, custom underwater chests, deep-sea bosses. |
+| **2** | Lore Interactions | `cubeforge-lore-interactions.dll` | `LoreInteractionMod` | Progressive reward drops & flavor text upon discovering lore. |
+| **3** | Combat Updates | `cubeforge-combat-updates.dll` | `CombatUpdateMod` | Key-bindable combat abilities, mana/stamina converter, double-tap dashes. |
+| **4** | Creature Updates | `cubeforge-creature-updates.dll` | `CreatureUpdatesMod` | Pet stat buff multipliers, hostile boomerang/mage damage nerfs, starter gold. |
+| **5** | Shop Updates | `cubeforge-shop-updates.dll` | `ShopUpdateMod` | Gem Trader & Item Vendor inventory injections, Spirit Cubes, dynamic pricing. |
+| **6** | World Generation | `cubeforge-world-gen.dll` | `WorldGenMod` | Non-restricted spawn biomes, Simplex noise macro-islands, building overrides. |
+| **7** | Beginner Mode | `cubeforge-beginner-mode.dll` | `BeginnerModeMod` | Dynamic stat reduction for hostile mobs during player levels 1–5. |
+| **8** | Region Lock Update | `cubeforge-region-lock.dll` | `RegionLockMod` | Softens region lock decay formula based on distance and `+` item modifier. |
+| **9** | Weapon Upgrades | `cubeforge-weapon-upgrades.dll` | `WeaponUpgradeMod` | Revives alpha Smithy adaptation and item tier upgrade mechanics. |
+| **10** | Quest System | `cubeforge-quest-system.dll` | `QuestMod` | Procedural kill quests from NPCs, kill tracking, and automated completion. |
+| **11** | Player Updates | `cubeforge-player-updates.dll` | `PlayerUpdatesMod` | Custom class system (`MonkClass`), abilities, specs, custom race appearances. |
+| **12** | Stack Updates | `cubeforge-stack-updates.dll` | `StackUpdatesMod` | Binary patch expanding item stack limit to 100 across all categories. |
+| **—** | **MegaModPack Bundle** | **`cubeforge-megamod.dll`** | `MegaModPack` | **Aggregated bundle consolidating all 12 modules into a single binary.** |
 
 ---
 
 ## 5. State Persistence
 
-Each sub-mod can serialize its settings to the `Save/` directory:
-- Directory: `<CubeWorldFolder>/Save/`
+Each sub-mod serializes its settings to the `Mods/` directory:
+- Directory: `<CubeWorldFolder>/Mods/`
 - Format: Binary struct serialization (`.sav`)
-- Configuration toggle states (`/mod <ID> <0/1>`) are saved automatically to `Save/CubeMegaMod.sav`.
+- Configuration toggle states (`/cubeforge mod <ID> <0/1>`) are saved automatically to `Mods/<FileName>.sav`.

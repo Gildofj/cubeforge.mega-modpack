@@ -1,5 +1,5 @@
 # ==============================================================================
-# CubeMegaMod Makefile
+# cubeforge.mega-modpack Makefile
 # ==============================================================================
 
 BUILD_DIR ?= build
@@ -34,7 +34,7 @@ clean:
 # Display help information
 help:
 	@echo "================================================================="
-	@echo " CubeMegaMod - Build Automation"
+	@echo " cubeforge.mega-modpack - Build Automation"
 	@echo "================================================================="
 	@echo " make          - Compila o mod DLL e copia para dist/"
 	@echo " make build    - Compila os binarios (Release)"

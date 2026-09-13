@@ -1,7 +1,7 @@
 #include "../test_framework.h"
-#include "src/cwsdk-extension/Timer.h"
-#include "src/cwsdk-extension/events/Event.h"
-#include "src/cwsdk-extension/events/EventList.h"
+#include "inventory/Timer.h"
+#include "abilities/Event.h"
+#include "abilities/EventList.h"
 
 // Mock Event for testing without engine game state dependencies
 class MockGameEvent : public cube::Event {

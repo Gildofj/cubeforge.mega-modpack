@@ -1,31 +1,31 @@
 #include "../test_framework.h"
-#include "src/CubeMod.h"
-#include "src/mods/BeginnerModeMod/BeginnerModeMod.h"
-#include "src/mods/CombatUpdatesMod/CombatUpdateMod.h"
-#include "src/mods/CreatureUpdatesMod/CreatureUpdatesMod.h"
-#include "src/mods/LoreInteractionMod/LoreInteractionMod.h"
-#include "src/mods/PlayerUpdatesMod/PlayerUpdatesMod.h"
-#include "src/mods/QuestMod/QuestMod.h"
-#include "src/mods/RegionLockUpdateMod/RegionLockUpdateMod.h"
-#include "src/mods/SeaExplorationMod/SeaExplorationMod.h"
-#include "src/mods/ShopUpdateMod/ShopUpdateMod.h"
-#include "src/mods/StackUpdatesMod/StackUpdatesMod.h"
-#include "src/mods/WeaponUpgradeMod/WeaponUpgradeMod.h"
-#include "src/mods/WorldGenMod/WorldGenMod.h"
+#include "BaseMod.h"
+#include "beginner_mode/BeginnerModeMod.h"
+#include "combat_updates/CombatUpdateMod.h"
+#include "creature_updates/CreatureUpdatesMod.h"
+#include "lore_interactions/LoreInteractionMod.h"
+#include "player_updates/PlayerUpdatesMod.h"
+#include "quest_system/QuestMod.h"
+#include "region_lock/RegionLockMod.h"
+#include "sea_exploration/SeaExplorationMod.h"
+#include "shop_updates/ShopUpdateMod.h"
+#include "stack_updates/StackUpdatesMod.h"
+#include "weapon_upgrades/WeaponUpgradeMod.h"
+#include "world_gen/WorldGenMod.h"
 
 #include <set>
 #include <vector>
 #include <memory>
 
 TEST_FUNC(MegaModLifecycle, SubModIDUniquenessAndRegistration) {
-    std::vector<std::unique_ptr<CubeMod>> subMods;
+    std::vector<std::unique_ptr<BaseMod>> subMods;
     subMods.push_back(std::make_unique<BeginnerModeMod>());
     subMods.push_back(std::make_unique<CombatUpdateMod>());
     subMods.push_back(std::make_unique<CreatureUpdatesMod>());
     subMods.push_back(std::make_unique<LoreInteractionMod>());
     subMods.push_back(std::make_unique<PlayerUpdatesMod>());
     subMods.push_back(std::make_unique<QuestMod>());
-    subMods.push_back(std::make_unique<RegionLockUpdateMod>());
+    subMods.push_back(std::make_unique<RegionLockMod>());
     subMods.push_back(std::make_unique<SeaExplorationMod>());
     subMods.push_back(std::make_unique<ShopUpdateMod>());
     subMods.push_back(std::make_unique<StackUpdatesMod>());
@@ -52,7 +52,7 @@ TEST_FUNC(MegaModLifecycle, SubModVersionStrings) {
     ASSERT_STREQ(m1.m_Version.ToString().c_str(), "v1.0.0");
 
     ShopUpdateMod m2;
-    ASSERT_STREQ(m2.m_Version.ToString().c_str(), "v1.1.0");
+    ASSERT_STREQ(m2.m_Version.ToString().c_str(), "v1.2.0");
 
     CombatUpdateMod m3;
     ASSERT_STREQ(m3.m_Version.ToString().c_str(), "v1.0.0");

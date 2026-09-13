@@ -1,5 +1,5 @@
-#ifndef CUBEMEGAMOD_TEST_FRAMEWORK_H
-#define CUBEMEGAMOD_TEST_FRAMEWORK_H
+#ifndef CUBEFORGE_MEGA_MODPACK_TEST_FRAMEWORK_H
+#define CUBEFORGE_MEGA_MODPACK_TEST_FRAMEWORK_H
 
 #include <iostream>
 #include <vector>
@@ -11,7 +11,7 @@
 #include <iomanip>
 #include <windows.h>
 
-namespace cubemegamod::testing {
+namespace cubeforge::testing {
 
     struct TestFailure {
         std::string expression;
@@ -52,7 +52,7 @@ namespace cubemegamod::testing {
             m_failedTests = 0;
 
             std::cout << "\n=======================================================\n";
-            std::cout << "       CubeMegaMod Domain & Extension Test Runner      \n";
+            std::cout << "       cubeforge.mega-modpack Test Runner              \n";
             std::cout << "=======================================================\n" << std::flush;
 
             auto globalStart = std::chrono::high_resolution_clock::now();
@@ -123,24 +123,24 @@ namespace cubemegamod::testing {
         }
     };
 
-} // namespace cubemegamod::testing
+} // namespace cubeforge::testing
 
 #define TEST_FUNC(suite_name, test_name) void test_##suite_name##_##test_name()
 
 #define REGISTER_TEST(suite_name, test_name) \
-    ::cubemegamod::testing::TestRunner::Instance().RegisterTest(#suite_name, #test_name, test_##suite_name##_##test_name)
+    ::cubeforge::testing::TestRunner::Instance().RegisterTest(#suite_name, #test_name, test_##suite_name##_##test_name)
 
 #define ASSERT_TRUE(condition) \
     do { \
         if (!(condition)) { \
-            ::cubemegamod::testing::TestRunner::Instance().AddFailure(#condition, __FILE__, __LINE__); \
+            ::cubeforge::testing::TestRunner::Instance().AddFailure(#condition, __FILE__, __LINE__); \
         } \
     } while(0)
 
 #define ASSERT_FALSE(condition) \
     do { \
         if (condition) { \
-            ::cubemegamod::testing::TestRunner::Instance().AddFailure("!(" #condition ")", __FILE__, __LINE__); \
+            ::cubeforge::testing::TestRunner::Instance().AddFailure("!(" #condition ")", __FILE__, __LINE__); \
         } \
     } while(0)
 
@@ -151,7 +151,7 @@ namespace cubemegamod::testing {
         if (!(_act == _exp)) { \
             std::stringstream _ss; \
             _ss << "Expected: [" << _exp << "] but got: [" << _act << "]"; \
-            ::cubemegamod::testing::TestRunner::Instance().AddFailure(#actual " == " #expected, __FILE__, __LINE__, _ss.str()); \
+            ::cubeforge::testing::TestRunner::Instance().AddFailure(#actual " == " #expected, __FILE__, __LINE__, _ss.str()); \
         } \
     } while(0)
 
@@ -162,7 +162,7 @@ namespace cubemegamod::testing {
         if (_act == _exp) { \
             std::stringstream _ss; \
             _ss << "Expected values to differ, but both were: [" << _act << "]"; \
-            ::cubemegamod::testing::TestRunner::Instance().AddFailure(#actual " != " #expected, __FILE__, __LINE__, _ss.str()); \
+            ::cubeforge::testing::TestRunner::Instance().AddFailure(#actual " != " #expected, __FILE__, __LINE__, _ss.str()); \
         } \
     } while(0)
 
@@ -171,7 +171,7 @@ namespace cubemegamod::testing {
         if (!((val1) < (val2))) { \
             std::stringstream _ss; \
             _ss << "[" << (val1) << "] is not < [" << (val2) << "]"; \
-            ::cubemegamod::testing::TestRunner::Instance().AddFailure(#val1 " < " #val2, __FILE__, __LINE__, _ss.str()); \
+            ::cubeforge::testing::TestRunner::Instance().AddFailure(#val1 " < " #val2, __FILE__, __LINE__, _ss.str()); \
         } \
     } while(0)
 
@@ -180,7 +180,7 @@ namespace cubemegamod::testing {
         if (!((val1) <= (val2))) { \
             std::stringstream _ss; \
             _ss << "[" << (val1) << "] is not <= [" << (val2) << "]"; \
-            ::cubemegamod::testing::TestRunner::Instance().AddFailure(#val1 " <= " #val2, __FILE__, __LINE__, _ss.str()); \
+            ::cubeforge::testing::TestRunner::Instance().AddFailure(#val1 " <= " #val2, __FILE__, __LINE__, _ss.str()); \
         } \
     } while(0)
 
@@ -189,7 +189,7 @@ namespace cubemegamod::testing {
         if (!((val1) > (val2))) { \
             std::stringstream _ss; \
             _ss << "[" << (val1) << "] is not > [" << (val2) << "]"; \
-            ::cubemegamod::testing::TestRunner::Instance().AddFailure(#val1 " > " #val2, __FILE__, __LINE__, _ss.str()); \
+            ::cubeforge::testing::TestRunner::Instance().AddFailure(#val1 " > " #val2, __FILE__, __LINE__, _ss.str()); \
         } \
     } while(0)
 
@@ -198,7 +198,7 @@ namespace cubemegamod::testing {
         if (!((val1) >= (val2))) { \
             std::stringstream _ss; \
             _ss << "[" << (val1) << "] is not >= [" << (val2) << "]"; \
-            ::cubemegamod::testing::TestRunner::Instance().AddFailure(#val1 " >= " #val2, __FILE__, __LINE__, _ss.str()); \
+            ::cubeforge::testing::TestRunner::Instance().AddFailure(#val1 " >= " #val2, __FILE__, __LINE__, _ss.str()); \
         } \
     } while(0)
 
@@ -210,7 +210,7 @@ namespace cubemegamod::testing {
         if (std::abs(_act - _exp) > _eps) { \
             std::stringstream _ss; \
             _ss << "Expected [" << _exp << "] +/- " << _eps << " but got [" << _act << "] (diff: " << std::abs(_act - _exp) << ")"; \
-            ::cubemegamod::testing::TestRunner::Instance().AddFailure("|" #actual " - " #expected "| <= " #epsilon, __FILE__, __LINE__, _ss.str()); \
+            ::cubeforge::testing::TestRunner::Instance().AddFailure("|" #actual " - " #expected "| <= " #epsilon, __FILE__, __LINE__, _ss.str()); \
         } \
     } while(0)
 
@@ -221,8 +221,8 @@ namespace cubemegamod::testing {
         if (_act != _exp) { \
             std::stringstream _ss; \
             _ss << "Expected: \"" << _exp << "\" but got: \"" << _act << "\""; \
-            ::cubemegamod::testing::TestRunner::Instance().AddFailure(#actual " == " #expected, __FILE__, __LINE__, _ss.str()); \
+            ::cubeforge::testing::TestRunner::Instance().AddFailure(#actual " == " #expected, __FILE__, __LINE__, _ss.str()); \
         } \
     } while(0)
 
-#endif // CUBEMEGAMOD_TEST_FRAMEWORK_H
+#endif // CUBEFORGE_MEGA_MODPACK_TEST_FRAMEWORK_H

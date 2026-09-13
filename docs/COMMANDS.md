@@ -1,36 +1,57 @@
-# In-Game Commands Reference
+# In-Game Commands Reference: cubeforge.mega-modpack
 
-CubeMegaMod provides interactive in-game chat commands allowing players to toggle modules on the fly, switch controls, and execute debug operations without restarting Cube World.
+**cubeforge.mega-modpack** provides interactive in-game chat commands allowing players to monitor status, toggle modules on the fly, customize controls, and execute debug operations without restarting Cube World.
 
 ---
 
-## 1. Mod Management Commands
+## 1. Unified CubeForge Commands
 
-### Toggle Sub-Modules
-Enable or disable specific features by their module ID. Settings are automatically saved to disk and remembered on your next play session.
+Open the in-game chat (`Enter`) to execute commands:
 
-```text
-/mod <ID> <state>
-```
+| Command | Description |
+| :--- | :--- |
+| `/cubeforge status` (or `/cubeforge`) | Displays active/inactive mod counts and status summary. |
+| `/cubeforge list` | Lists all 12 modules, their IDs, versions, and current states. |
+| `/cubeforge help` | Prints the full commands help manual in chat. |
+| `/cubeforge mod <id> <1/0>` | Toggles a specific module on (`1`) or off (`0`). |
+| `/cubeforge combat doubletap <1/0>` | Enables/disables WASD double-tap dash trigger. |
+| `/cubeforge sea autogold <1/0>` | Enables/disables automatic gold deduction for diving oxygen. |
+| `/cubeforge class <id>` | Spawns a test NPC with a specific class ID. |
+| `/cubeforge anim <id>` | Plays a specific animation state on the local player. |
 
-- **`<ID>`**: The numeric identifier of the module (1 through 12).
-- **`<state>`**: `1` to Enable, `0` to Disable.
+---
 
-#### Examples
-- Enable Beginner Mode:
+## 2. Legacy Aliases (Backwards Compatibility)
+
+For players accustomed to legacy CubeMegaMod syntax, all original shortcuts remain functional:
+
+- **Module Toggle**:
   ```text
-  /mod 7 1
+  /mod <id> <1/0>
   ```
-- Disable Sea Exploration:
+- **Double-Tap Dodge**:
   ```text
-  /mod 1 0
+  /enable doubletap
+  /disable doubletap
+  ```
+- **Auto-Gold Diving**:
+  ```text
+  /enable autogoldusage
+  /disable autogoldusage
+  ```
+- **Debug / Class / Animation**:
+  ```text
+  /class <class_id>
+  /t <anim_id>
   ```
 
-#### Module ID Quick Table
+---
+
+## 3. Module ID Quick Table
 
 | ID | Feature Name | Description |
 | :---: | :--- | :--- |
-| `1` | Sea Exploration | Underwater chests, oxygen mechanics, underwater bosses |
+| `1` | Sea Exploration | Underwater chests, oxygen mechanics, deep-sea bosses |
 | `2` | Lore Interactions | Rewards from discovering lore objects |
 | `3` | Combat Updates | Key 1 & 2 skills, double-tap / Ctrl movement abilities |
 | `4` | Creature Updates | 50% pet buffs, 50% mage/boomerang nerfs, starter 40g |
@@ -38,44 +59,7 @@ Enable or disable specific features by their module ID. Settings are automatical
 | `6` | World Generation | Biome islands via Simplex noise, any starter biome |
 | `7` | Beginner Mode | Enemy stat reduction for player levels 1–5 |
 | `8` | Region Lock Update | Gradual gear power decay based on distance |
-| `9` | Weapon Upgrading | Smithy adaptation & weapon upgrade mechanics |
+| `9` | Weapon Upgrades | Smithy adaptation & weapon upgrade mechanics |
 | `10` | Quest System | Procedural kill quests from NPCs |
 | `11` | Player Updates | Monk class, specializations, custom race visuals |
 | `12` | Stack Updates | Increased maximum inventory stack size (100) |
-
----
-
-## 2. Combat & Control Configuration
-
-### Double-Tap Control Toggle
-Configure whether combat movement abilities (dashes) are activated by **Double-Tapping** WASD or by holding **Left Control + WASD**.
-
-- **Enable Double-Tap**:
-  ```text
-  /enable doubletap
-  ```
-- **Disable Double-Tap** (switches trigger to `Left Control + WASD`):
-  ```text
-  /disable doubletap
-  ```
-
----
-
-## 3. Debug & Developer Commands
-
-> [!NOTE]
-> These commands are intended for testing, mod development, and inspecting animations.
-
-### Spawn Custom Class NPC
-Spawns an NPC with a specific class ID and gem trader appearance flags near the player:
-```text
-/class <class_id>
-```
-- **`<class_id>`**: Numeric ID of the class (e.g. `5` for custom classes).
-
-### Trigger Animation State
-Forces the local player character to enter a specific animation state ID:
-```text
-/t <animation_id>
-```
-- **`<animation_id>`**: Numeric index of the target animation state.
