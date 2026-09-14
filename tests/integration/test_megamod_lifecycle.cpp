@@ -39,7 +39,13 @@ TEST_FUNC(MegaModLifecycle, SubModIDUniquenessAndRegistration) {
         ASSERT_FALSE(mod->m_Name.empty());
         ASSERT_TRUE(mod->m_FileName != nullptr);
         ASSERT_GT(mod->m_ID, 0);
-        ASSERT_TRUE(mod->m_Enabled);
+
+        // WorldGenMod is opt-in (disabled by default) to guarantee vanilla map generation
+        if (mod->m_ID == 6) {
+            ASSERT_FALSE(mod->m_Enabled);
+        } else {
+            ASSERT_TRUE(mod->m_Enabled);
+        }
 
         // Check ID uniqueness across all registered submods
         ASSERT_TRUE(uniqueIDs.find(mod->m_ID) == uniqueIDs.end());

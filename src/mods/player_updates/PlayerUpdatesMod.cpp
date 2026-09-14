@@ -273,7 +273,7 @@ static bool SetPreAppearance(cube::SaveData* saveData, cube::Creature::EntityDat
 	appearance->hair_color = saveData->hair_color;
 	if (saveData->race == 9 && saveData->haircut > 0)
 	{
-		appearance->hair_model = 1489 + saveData->haircut;
+		appearance->hair_model = static_cast<short>(1489 + saveData->haircut);
 	}
 	return false;
 }
@@ -334,7 +334,12 @@ static std::string* GetRaceNameInternal(std::string* string, int race)
 			if (res != game->speech.entity_type_id_map.end())
 			{
 				std::wstring* wstr = &res->second;
-				*string = std::string(wstr->begin(), wstr->end());
+				string->clear();
+				string->reserve(wstr->length());
+				for (wchar_t wc : *wstr)
+				{
+					string->push_back(static_cast<char>(wc));
+				}
 			}
 		}
 		break;
@@ -451,13 +456,13 @@ extern "C" int OnShiftAbilityID(cube::Game* game, cube::Creature* player)
 
 	if (game->control_states[ControlIndex::button_class_skill])
 	{
-		player->entity_data.current_ability = MOD->m_Classes.at(index)->GetShiftAbilityId(player);
+		player->entity_data.current_ability = static_cast<BYTE>(MOD->m_Classes.at(index)->GetShiftAbilityId(player));
 	}
 
 	if (game->control_states[ControlIndex::button_dodge])
 	{
 		int ability = MOD->m_Classes.at(index)->GetMiddleMouseAbilityId(player);
-		player->entity_data.current_ability = ability;
+		player->entity_data.current_ability = static_cast<BYTE>(ability);
 		if (ability > 0)
 		{
 			player->entity_data.time_since_ability = 0.f;

@@ -152,12 +152,17 @@ extern "C" int GetBuildingType(cube::World* world, long long x, long long y, Int
 WorldGenMod::WorldGenMod()
 	: BaseMod("World Gen Mod", "cubeforge-world-gen", 6, { 1, 1, 0 })
 {
+	m_Enabled = false; // Desativado por padrao para garantir a geracao do mundo vanilla
 }
 
 void WorldGenMod::Initialize()
 {
+	if (!m_Enabled)
+	{
+		return;
+	}
 	cube::Game::SetRestrictedSpawnRegions(false);
-	MemoryHelper::WriteFarJMP((void*)CWOffset(0x2B909A), (void*)&ASMUpdateGetBiomeType);
+	MemoryHelper::WriteFarJMP((void*)CWOffset(0x2B9080), (void*)&ASMUpdateGetBiomeType);
 	MemoryHelper::WriteFarJMP((void*)CWOffset(0x2D53D0), (void*)&ASMBuildingTypeOverride);
 }
 
